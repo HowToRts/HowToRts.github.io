@@ -28,4 +28,6 @@ title: Welcome!
 <li>Pathfinding - Dijkstra / A*</li>
 <li>Modern Pathfinding - flow fields</li>
 <li>AI - Planning</li>
+<li>How to calculate/render vision</li>
+<li>How to merge range weapon circles for rendering</li>
 </ul>
