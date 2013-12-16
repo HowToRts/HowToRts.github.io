@@ -786,37 +786,36 @@ section {
   margin: 20px 0;
   margin-top: 70px;
 }
-section #title {
+section .title {
   border: 0;
   outline: none;
-  margin: 0 0 50px 0;
   padding: 0 0 5px 0;
 }
-section #title h1 {
+section .title h1 {
   font-family: 'OpenSansLight', "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: normal;
   font-size: 40px;
   text-align: center;
   line-height: 36px;
 }
-section #title p {
+section .title p {
   color: #d7cfbe;
   font-family: 'OpenSansLight', "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: normal;
   font-size: 18px;
   text-align: center;
 }
-section #title .credits {
+section .title .credits {
   font-size: 11px;
   font-family: 'OpenSansRegular', "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: normal;
   color: #696969;
   margin-top: -10px;
 }
-section #title .credits.left {
+section .title .credits.left {
   float: left;
 }
-section #title .credits.right {
+section .title .credits.right {
   float: right;
 }
 

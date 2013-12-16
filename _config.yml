@@ -1,0 +1,4 @@
+name: Your New Jekyll Site
+pygments: true
+
+markdown: kramdown
