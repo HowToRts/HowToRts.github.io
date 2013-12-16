@@ -528,6 +528,11 @@ table {
   border-spacing: 0;
 }
 
+/* =============================================================================
+   Our actual CSS follows
+   ========================================================================== */
+
+
 body {
   padding: 0px 0 20px 0px;
   margin: 0px;
@@ -847,4 +852,10 @@ section .title .credits.right {
   nav {
     display: none;
   }
+}
+
+
+/* List of blog post styles */
+.bloglist h4 {
+	margin: 0 0 3px;
 }

@@ -8,6 +8,16 @@ title: Welcome!
 
 <p>I'll be posting mini examples as runnable javascript apps to explain how things work</p>
 
+<h3>Done so far</h3>
+
+<div class="bloglist">
+{% for post in site.posts %}
+	<small>{{ post.date | date_to_string }}</small>
+	<h4 class="post-title"><a href="{{ post.url | replace_first: '/', '' }}">{{ post.title }}</a></h4>
+	<p>{{ post.description }}</p>
+{% endfor %}
+</div>
+
 <h3>Plan</h3>
 
 <p>This is a rough list around what I plan on developing and writing up.</p>
