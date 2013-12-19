@@ -33,18 +33,25 @@ function startGame() {
 	enemies.push(new Enemy(2, 2, 100));
 }
 
-var segment = new LineSegment([2, 2], [5, 5]);
+var path = new LineString([[0, 3], [3, 3], [3, 1], [9, 1]]);
 
 //called periodically to update the game
 //dt is the change of time since the last update (in milliseconds)
 
+var pathIndex = 0;
 var percent = 0;
+
 function gameTick(dt) {
 
 	percent += (dt / 1000);
-	if (percent > 1)
+	if (percent > 1) {
 		percent -= 1;
-	var pos = segment.interpolatedPoint(percent);
+		pathIndex++;
+		if (pathIndex >= path.segments.length) {
+			pathIndex = 0;
+		}
+	}
+	var pos = path.segments[pathIndex].interpolatedPoint(percent);
 	enemies[0].x = pos.x;
 	enemies[0].y = pos.y;
 }
