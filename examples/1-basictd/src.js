@@ -25,7 +25,26 @@ Enemy = function (x, y, health) {
 
 //Called to start the game
 function startGame() {
-	//Create some initial towerss
+	//Create some initial towers
 	towers.push(new Tower(0, 0));
 	towers.push(new Tower(5, 3));
+
+	//Create a test enemy
+	enemies.push(new Enemy(2, 2, 100));
+}
+
+var segment = new LineSegment([2, 2], [5, 5]);
+
+//called periodically to update the game
+//dt is the change of time since the last update (in milliseconds)
+
+var percent = 0;
+function gameTick(dt) {
+
+	percent += (dt / 1000);
+	if (percent > 1)
+		percent -= 1;
+	var pos = segment.interpolatedPoint(percent);
+	enemies[0].x = pos.x;
+	enemies[0].y = pos.y;
 }

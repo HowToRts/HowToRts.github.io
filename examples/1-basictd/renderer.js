@@ -36,6 +36,9 @@ function createCenteredBitmap(filename) {
 
 var towerBitmaps = [];
 
+var enemyId = 1;
+var enemyBitmaps = {};
+
 function loadingComplete() {
 	//Draw a grid
 	var gridShape = new createjs.Shape();
@@ -54,14 +57,15 @@ function loadingComplete() {
 
 	startGame();
 
-	createjs.Ticker.setFPS(10);
+	createjs.Ticker.setFPS(60);
 	createjs.Ticker.addEventListener("tick", function () {
-		//TODO: gameTick();
+		gameTick(createjs.Ticker.getInterval());
 		rendererTick();
 		stage.update();
 		//console.log('tick');
 	});
 }
+
 
 function rendererTick() {
 	//Create tower bitmaps for all the new towers
@@ -76,5 +80,38 @@ function rendererTick() {
 		stage.addChild(container);
 	}
 
-	//TODO: Create enemy bitmaps, move them, rotate them etc
+
+	//Flag all enemy bitmaps as not alive
+	for (var k in enemies) {
+		enemies[k]._isAlive = false;
+	}
+
+	//Create new enemy bitmaps as required
+	//Update enemy positions
+	//Mark bitmaps as alive
+	for (var i = 0; i < enemies.length; i++) {
+		var e = enemies[i];
+		if (!e._id) {
+			e._id = (enemyId++);
+		}
+
+		var bitmap = enemyBitmaps[e._id];
+		if (!bitmap) {
+			bitmap = enemyBitmaps[e._id] = createCenteredBitmap('agent');
+			stage.addChild(bitmap);
+		}
+		bitmap._isAlive = true;
+
+		bitmap.x = gridPx * (e.x + 0.5);
+		bitmap.y = gridPx * (e.y + 0.5);
+	}
+
+	//Remove any not alive enemies
+	for (k in enemyBitmaps) {
+		if (!enemyBitmaps[k]._isAlive) {
+			stage.removeChild(enemyBitmaps[k]);
+			delete enemyBitmaps[k];
+		}
+	}
+
 }
