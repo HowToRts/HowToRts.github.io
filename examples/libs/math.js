@@ -27,9 +27,12 @@ Vector2.prototype.minus = function (other) {
 Vector2.prototype.plus = function (other) {
 	return new Vector2(this.x + other.x, this.y + other.y);
 };
-
 Vector2.prototype.mul = function (scalar) {
 	return new Vector2(this.x * scalar, this.y * scalar);
+};
+
+Vector2.prototype.angle = function () {
+	return Math.atan2(this.x, -this.y) * 180 / Math.PI;
 };
 
 

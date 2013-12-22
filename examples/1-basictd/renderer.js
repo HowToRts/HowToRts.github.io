@@ -104,6 +104,7 @@ function rendererTick() {
 
 		bitmap.x = gridPx * (e.position.x + 0.5);
 		bitmap.y = gridPx * (e.position.y + 0.5);
+		bitmap.rotation = e.rotation;
 	}
 
 	//Remove any not alive enemies

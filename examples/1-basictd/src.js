@@ -19,14 +19,15 @@ Tower = function (x, y) {
 //Defines an enemy that moves
 Enemy = function (x, y) {
 	this.position = new Vector2(x, y);
+	this.rotation = 0;
 
 	this.health = 100;
-	this.speed = 1; //grid squares / second
+	this.speed = 4; //grid squares / second
 
 	this.pathIndex = 1;
 };
 
-var path = [new Vector2(0, 3), new Vector2(3, 3), new Vector2(3, 1), new Vector2(9, 1)];
+var path = [new Vector2(0, 3), new Vector2(3, 3), new Vector2(3, 5), new Vector2(6, 5), new Vector2(6, 2), new Vector2(4, 2)];
 
 //Called to start the game
 function startGame() {
@@ -66,5 +67,6 @@ function gameTick(dt) {
 		}
 
 		e.position = e.position.plus(vectorToTarget.normalize().mul(distanceToMove));
+		e.rotation = vectorToTarget.angle();
 	}
 }
