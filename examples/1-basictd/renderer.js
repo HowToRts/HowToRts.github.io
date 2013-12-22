@@ -44,7 +44,7 @@ function loadingComplete() {
 	var gridShape = new createjs.Shape();
 	gridShape.x = 0.5;
 	gridShape.y = 0.5;
-	gridShape.graphics.beginStroke('#000').setStrokeStyle(1);
+	gridShape.graphics.beginStroke('#bbb').setStrokeStyle(1);
 	for (var x = 0; x < gridWidthPx; x += gridPx) {
 		gridShape.graphics.moveTo(x, 0);
 		gridShape.graphics.lineTo(x, gridHeightPx);
@@ -54,6 +54,22 @@ function loadingComplete() {
 		gridShape.graphics.lineTo(gridWidthPx, y);
 	}
 	stage.addChild(gridShape);
+
+
+	//Draw the path
+	var pathShape = new createjs.Shape();
+	pathShape.x = 0.5 + (0.5 * gridPx);
+	pathShape.y = 0.5 + (0.5 * gridPx);
+	pathShape.graphics.beginStroke('#44f').setStrokeStyle(1);
+	pathShape.graphics.moveTo(path[0].x * gridPx, path[0].y * gridPx);
+
+	for (var i = 1; i < path.length; i++) {
+		pathShape.graphics.lineTo(path[i].x * gridPx, path[i].y * gridPx);
+	}
+	stage.addChild(pathShape);
+
+
+
 
 	startGame();
 

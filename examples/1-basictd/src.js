@@ -17,8 +17,8 @@ Tower = function (x, y) {
 };
 
 //Defines an enemy that moves
-Enemy = function (x, y) {
-	this.position = new Vector2(x, y);
+Enemy = function (pos) {
+	this.position = pos;
 	this.rotation = 0;
 
 	this.health = 100;
@@ -36,14 +36,14 @@ function startGame() {
 	towers.push(new Tower(5, 3));
 
 	//Create a test enemy
-	enemies.push(new Enemy(0, 3));
+	enemies.push(new Enemy(path[0]));
 }
 
 //called periodically to update the game
 //dt is the change of time since the last update (in seconds)
 
-var pathIndex = 0;
-var percent = 0;
+var timeBetweenSpawns = 1;
+var timeToNextSpawn = timeBetweenSpawns;
 
 function gameTick(dt) {
 
@@ -73,5 +73,11 @@ function gameTick(dt) {
 
 		e.position = e.position.plus(vectorToTarget.normalize().mul(distanceToMove));
 		e.rotation = vectorToTarget.angle();
+	}
+
+	timeToNextSpawn -= dt;
+	if (timeToNextSpawn <= 0) {
+		timeToNextSpawn += timeBetweenSpawns;
+		enemies.push(new Enemy(path[0]));
 	}
 }
