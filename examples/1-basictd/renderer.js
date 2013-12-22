@@ -82,8 +82,8 @@ function rendererTick() {
 
 
 	//Flag all enemy bitmaps as not alive
-	for (var k in enemies) {
-		enemies[k]._isAlive = false;
+	for (var k in enemyBitmaps) {
+		enemyBitmaps[k]._isAlive = false;
 	}
 
 	//Create new enemy bitmaps as required

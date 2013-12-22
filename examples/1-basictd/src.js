@@ -48,7 +48,7 @@ var percent = 0;
 function gameTick(dt) {
 
 	//move enemies
-	for (var i = 0; i < enemies.length; i++) {
+	for (var i = enemies.length - 1; i >= 0; i--) {
 		var e = enemies[i];
 
 		var distanceToMove = dt * e.speed;
@@ -59,6 +59,11 @@ function gameTick(dt) {
 		if (distanceToTarget < distanceToMove) {
 			e.position = path[e.pathIndex];
 			e.pathIndex++;
+
+			if (e.pathIndex == path.length) {
+				enemies.splice(i, 1);
+				continue;
+			}
 
 			//recalculate for the new destination
 			distanceToMove -= distanceToTarget;
