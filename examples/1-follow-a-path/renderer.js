@@ -34,8 +34,6 @@ function createCenteredBitmap(filename) {
 	return sprite;
 }
 
-var towerBitmaps = [];
-
 var enemyId = 1;
 var enemyBitmaps = {};
 
@@ -84,19 +82,6 @@ function loadingComplete() {
 
 
 function rendererTick() {
-	//Create tower bitmaps for all the new towers
-	while (towerBitmaps.length < towers.length) {
-		var tower = towers[towerBitmaps.length];
-		var container = new createjs.Container();
-		container.addChild(createCenteredBitmap('tower'));
-		container.addChild(createCenteredBitmap('turret'));
-		container.x = gridPx * (tower.x + 0.5);
-		container.y = gridPx * (tower.y + 0.5);
-		towerBitmaps.push(container);
-		stage.addChild(container);
-	}
-
-
 	//Flag all enemy bitmaps as not alive
 	for (var k in enemyBitmaps) {
 		enemyBitmaps[k]._isAlive = false;

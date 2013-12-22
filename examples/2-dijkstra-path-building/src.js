@@ -51,6 +51,10 @@ var timeToNextSpawn = 0;
 
 function gameTick(dt) {
 
+	if (path.length == 0) {
+		return;
+	}
+
 	//move enemies
 	for (var i = enemies.length - 1; i >= 0; i--) {
 		var e = enemies[i];

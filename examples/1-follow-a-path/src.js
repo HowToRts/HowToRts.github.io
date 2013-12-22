@@ -6,45 +6,37 @@ var gridPx = 32;
 var gridWidth = gridWidthPx / gridPx;
 var gridHeight = gridHeightPx / gridPx;
 
-//Storage for the current towers and enemies
-var towers = new Array();
+//Storage for the current enemies
 var enemies = new Array();
-
-//Defines a tower that shoots
-Tower = function (x, y) {
-	this.x = x;
-	this.y = y;
-};
 
 //Defines an enemy that moves
 Enemy = function (pos) {
 	this.position = pos;
 	this.rotation = 0;
 
-	this.health = 100;
 	this.speed = 4; //grid squares / second
 
 	this.pathIndex = 1;
 };
 
-var path = [new Vector2(0, 3), new Vector2(3, 3), new Vector2(3, 5), new Vector2(6, 5), new Vector2(6, 2), new Vector2(4, 2)];
+var path = [
+	new Vector2(0, 3),
+	new Vector2(3, 3),
+	new Vector2(3, 5),
+	new Vector2(6, 5),
+	new Vector2(6, 2),
+	new Vector2(4, 2)
+];
 
 //Called to start the game
 function startGame() {
-	//Create some initial towers
-	towers.push(new Tower(0, 0));
-	towers.push(new Tower(5, 3));
-
-	//Create a test enemy
-	enemies.push(new Enemy(path[0]));
 }
+
+var timeBetweenSpawns = 1;
+var timeToNextSpawn = 0;
 
 //called periodically to update the game
 //dt is the change of time since the last update (in seconds)
-
-var timeBetweenSpawns = 1;
-var timeToNextSpawn = timeBetweenSpawns;
-
 function gameTick(dt) {
 
 	//move enemies
@@ -77,7 +69,7 @@ function gameTick(dt) {
 
 	timeToNextSpawn -= dt;
 	if (timeToNextSpawn <= 0) {
-		timeToNextSpawn += timeBetweenSpawns;
 		enemies.push(new Enemy(path[0]));
+		timeToNextSpawn += timeBetweenSpawns;
 	}
 }

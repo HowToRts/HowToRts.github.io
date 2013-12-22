@@ -92,7 +92,7 @@ function loadingComplete() {
 
 	createjs.Ticker.setFPS(60);
 	createjs.Ticker.addEventListener("tick", function () {
-		//gameTick(createjs.Ticker.getInterval() / 1000);
+		gameTick(createjs.Ticker.getInterval() / 1000);
 		rendererTick();
 		stage.update();
 		//console.log('tick');
