@@ -59,7 +59,7 @@ function loadingComplete() {
 
 	createjs.Ticker.setFPS(60);
 	createjs.Ticker.addEventListener("tick", function () {
-		gameTick(createjs.Ticker.getInterval());
+		gameTick(createjs.Ticker.getInterval() / 1000);
 		rendererTick();
 		stage.update();
 		//console.log('tick');
@@ -102,8 +102,8 @@ function rendererTick() {
 		}
 		bitmap._isAlive = true;
 
-		bitmap.x = gridPx * (e.x + 0.5);
-		bitmap.y = gridPx * (e.y + 0.5);
+		bitmap.x = gridPx * (e.position.x + 0.5);
+		bitmap.y = gridPx * (e.position.y + 0.5);
 	}
 
 	//Remove any not alive enemies

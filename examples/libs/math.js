@@ -2,6 +2,11 @@ Vector2 = function (x, y) {
 	this.x = x;
 	this.y = y;
 };
+Vector2.zero = new Vector2(0, 0);
+
+Vector2.prototype.length = function () {
+	return this.distanceTo(Vector2.zero);
+};
 
 Vector2.prototype.distanceTo = function (target) {
 	var xDif = this.x - target.x;
@@ -10,10 +15,27 @@ Vector2.prototype.distanceTo = function (target) {
 	return Math.sqrt((xDif * xDif) + (yDif * yDif));
 };
 
+Vector2.prototype.normalize = function () {
+	var length = this.length();
+
+	return new Vector2(this.x / length, this.y / length);
+};
+
+Vector2.prototype.minus = function (other) {
+	return new Vector2(this.x - other.x, this.y - other.y);
+};
+Vector2.prototype.plus = function (other) {
+	return new Vector2(this.x + other.x, this.y + other.y);
+};
+
+Vector2.prototype.mul = function (scalar) {
+	return new Vector2(this.x * scalar, this.y * scalar);
+};
+
 
 //Factory method
 vector2 = function (x, y) {
-	if (x.length) {
+	if (x.length) { //array
 		return new Vector2(x[0], x[1]);
 	} /*else if (y !== undefined) {
 		return new Vector2(x, y);

@@ -17,11 +17,16 @@ Tower = function (x, y) {
 };
 
 //Defines an enemy that moves
-Enemy = function (x, y, health) {
-	this.x = x;
-	this.y = y;
-	this.health = health;
+Enemy = function (x, y) {
+	this.position = new Vector2(x, y);
+
+	this.health = 100;
+	this.speed = 1; //grid squares / second
+
+	this.pathIndex = 1;
 };
+
+var path = [new Vector2(0, 3), new Vector2(3, 3), new Vector2(3, 1), new Vector2(9, 1)];
 
 //Called to start the game
 function startGame() {
@@ -30,28 +35,36 @@ function startGame() {
 	towers.push(new Tower(5, 3));
 
 	//Create a test enemy
-	enemies.push(new Enemy(2, 2, 100));
+	enemies.push(new Enemy(0, 3));
 }
 
-var path = new LineString([[0, 3], [3, 3], [3, 1], [9, 1]]);
-
 //called periodically to update the game
-//dt is the change of time since the last update (in milliseconds)
+//dt is the change of time since the last update (in seconds)
 
 var pathIndex = 0;
 var percent = 0;
 
 function gameTick(dt) {
 
-	percent += (dt / 1000);
-	if (percent > 1) {
-		percent -= 1;
-		pathIndex++;
-		if (pathIndex >= path.segments.length) {
-			pathIndex = 0;
+	//move enemies
+	for (var i = 0; i < enemies.length; i++) {
+		var e = enemies[i];
+
+		var distanceToMove = dt * e.speed;
+		var vectorToTarget = path[e.pathIndex].minus(e.position);
+		var distanceToTarget = vectorToTarget.length();
+
+		//We assume you'll never move more than one path point in a game tick
+		if (distanceToTarget < distanceToMove) {
+			e.position = path[e.pathIndex];
+			e.pathIndex++;
+
+			//recalculate for the new destination
+			distanceToMove -= distanceToTarget;
+			vectorToTarget = path[e.pathIndex].minus(e.position);
+			distanceToTarget = vectorToTarget.length();
 		}
+
+		e.position = e.position.plus(vectorToTarget.normalize().mul(distanceToMove));
 	}
-	var pos = path.segments[pathIndex].interpolatedPoint(percent);
-	enemies[0].x = pos.x;
-	enemies[0].y = pos.y;
 }
