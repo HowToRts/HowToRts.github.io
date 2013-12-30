@@ -10,12 +10,6 @@ var gridHeight = gridHeightPx / gridPx;
 var towers = new Array();
 var enemies = new Array();
 
-//Defines a tower that shoots
-Tower = function (x, y) {
-	this.x = x;
-	this.y = y;
-};
-
 //Defines an enemy that moves
 Enemy = function (pos) {
 	this.position = pos;
@@ -35,8 +29,8 @@ var path = [];
 //Called to start the game
 function startGame() {
 	//Create some initial towers
-	for (var i = 0; i < 50; i++) {
-		towers.push(new Tower(parseInt(Math.random() * gridWidth), parseInt(Math.random() * gridHeight)));
+	for (var i = 0; i < 120; i++) {
+		towers.push(new Vector2(parseInt(Math.random() * gridWidth), parseInt(Math.random() * gridHeight)));
 	}
 
 	generateDijkstraGrid();
@@ -116,13 +110,15 @@ function generateDijkstraGrid() {
 
 	var toVisit = [pathEnd];
 
+	//for each node we need to visit, starting with the pathEnd
 	for (i = 0; i < toVisit.length; i++) {
 		var neighbours = neighboursOf(toVisit[i]);
 
+		//for each neighbour of this node (only straight line neighbours, not diagonals)
 		for (var j = 0; j < neighbours.length; j++) {
 			var n = neighbours[j];
 
-			//We will only ever visit every node once as we are always visiting nodes in the most efficient order
+ 			//We will only ever visit every node once as we are always visiting nodes in the most efficient order
 			if (dijkstraGrid[n.x][n.y] === null) {
 				n.distance = toVisit[i].distance + 1;
 				dijkstraGrid[n.x][n.y] = n.distance;
