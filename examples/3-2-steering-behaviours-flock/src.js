@@ -38,6 +38,11 @@ function startGame() {
 	agents.push(new Agent(new Vector2(2, gridHeight - 3)));
 	agents.push(new Agent(new Vector2(2, gridHeight - 4)));
 	agents.push(new Agent(new Vector2(2, gridHeight - 5)));
+
+	stage.addEventListener('stagemouseup', function (ev) {
+		destination.x = ev.stageX / gridPx - 0.5;
+		destination.y = ev.stageY / gridPx - 0.5;
+	});
 }
 
 function round(val) {
