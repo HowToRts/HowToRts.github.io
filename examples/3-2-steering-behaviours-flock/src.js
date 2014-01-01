@@ -155,8 +155,8 @@ function steeringBehaviourSeparation2(agent) {
 }
 
 function steeringBehaviourCohesion(agent) {
-	var centerOfMass = Vector2.zero;
-	var neighboursCount = 0;
+	var centerOfMass = agent.position;
+	var neighboursCount = 1;
 
 	for (var i = 0; i < agents.length; i++) {
 		var a = agents[i];
@@ -169,7 +169,7 @@ function steeringBehaviourCohesion(agent) {
 		}
 	}
 
-	if (neighboursCount == 0) {
+	if (neighboursCount == 1) {
 		return Vector2.zero;
 	}
 
@@ -180,7 +180,7 @@ function steeringBehaviourCohesion(agent) {
 
 function steeringBehaviourAlignment(agent) {
 	var averageHeading = agent.velocity.length() == 0 ? Vector2.zero : agent.velocity.normalize();
-	var neighboursCount = 0;
+	var neighboursCount = 1;
 
 	for (var i = 0; i < agents.length; i++) {
 		var a = agents[i];
