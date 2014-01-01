@@ -3,6 +3,7 @@ Vector2 = function (x, y) {
 	this.y = y;
 };
 Vector2.zero = new Vector2(0, 0);
+Vector2.one = new Vector2(1, 1);
 
 Vector2.prototype.length = function () {
 	return this.distanceTo(Vector2.zero);
@@ -29,6 +30,9 @@ Vector2.prototype.plus = function (other) {
 };
 Vector2.prototype.mul = function (scalar) {
 	return new Vector2(this.x * scalar, this.y * scalar);
+};
+Vector2.prototype.div = function (scalar) {
+	return new Vector2(this.x / scalar, this.y / scalar);
 };
 
 Vector2.prototype.angle = function () {
