@@ -52,10 +52,11 @@ function round(val) {
 //called periodically to update the game
 //dt is the change of time since the last update (in seconds)
 function gameTick(dt) {
+	var i, agent;
 
-	//move agents
-	for (var i = agents.length - 1; i >= 0; i--) {
-		var agent = agents[i];
+	//Calculate steering and flocking forces for all agents
+	for (i = agents.length - 1; i >= 0; i--) {
+		agent = agents[i];
 
 		//Work out our behaviours
 		var seek = steeringBehaviourSeek(agent, destination);
@@ -63,17 +64,24 @@ function gameTick(dt) {
 		var cohesion = steeringBehaviourCohesion(agent);
 		var alignment = steeringBehaviourAlignment(agent);
 
-		if (i == 1) {
-			console.log(round(seek.length()) + ' ' + round(separation.length()) + ' ' + round(cohesion.length()) + ' ' + round(alignment.length()));
+		if (i == 0) {
+			console.log(round(seek.length()) + ' ' + round(separation.length()) + ' ' + round(cohesion.length()) + ' ' + round(alignment.length()) + ' : ' + round(agent.velocity.length()));
 		}
 
-		//Apply the force
-		agent.velocity = agent.velocity
-			.plus(seek.mul(dt))
-			.plus(separation.mul(dt * 2))
-			.plus(cohesion.mul(dt))
-			.plus(alignment.mul(dt));
+		//If there is significant separation going on, don't apply cohesion as they'll just fight each other
+		if (separation.length() > 3) {
+			cohesion = Vector2.zero;
+		}
 
+		agent.forceToApply = seek.plus(separation).plus(cohesion).plus(alignment).mul(dt);
+	}
+
+	//Move agents based on forces being applied (aka physics)
+	for (i = agents.length - 1; i >= 0; i--) {
+		agent = agents[i];
+
+		//Apply the force
+		agent.velocity = agent.velocity.plus(agent.forceToApply);
 
 		//Cap speed as required
 		var speed = agent.velocity.length();
