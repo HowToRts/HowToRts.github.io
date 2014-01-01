@@ -46,7 +46,7 @@ function startGame() {
 }
 
 function round(val) {
-	return Math.round(val * 10) / 10;
+	return val.toFixed(1);
 }
 
 //called periodically to update the game
@@ -132,26 +132,6 @@ function steeringBehaviourSeparation(agent) {
 
 	totalForce = totalForce.div(neighboursCount);
 	return totalForce.mul(agent.maxForce);
-}
-
-
-//TODO: This is taken from skooter500 and is different to the GDC presentation, it has a weird formula
-function steeringBehaviourSeparation2(agent) {
-	var steeringForce = Vector2.zero;
-
-	for (var i = 0; i < agents.length; i++) {
-		var a = agents[i];
-		if (a != agent) {
-			var distance = agent.position.distanceTo(a.position);
-			if (distance < agent.minSeparation && distance > 0) {
-				//Vector to other agent
-				var toAgent = agent.position.minus(a.position);
-				steeringForce = steeringForce.plus(toAgent.normalize().div(toAgent.length()));
-			}
-		}
-	}
-
-	return steeringForce;
 }
 
 function steeringBehaviourCohesion(agent) {
