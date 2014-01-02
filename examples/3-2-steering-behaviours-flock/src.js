@@ -21,7 +21,7 @@ Agent = function (pos) {
 	this.maxSpeed = 4; //grid squares / second
 
 	this.radius = 0.5;
-	this.minSeparation = 1; // We'll move away from anyone nearer than this
+	this.minSeparation = 0.8; // We'll move away from anyone nearer than this
 
 	this.maxCohesion = 5.5; //We'll move closer to anyone within this bound
 };
@@ -38,6 +38,7 @@ function startGame() {
 	agents.push(new Agent(new Vector2(2, gridHeight - 3)));
 	agents.push(new Agent(new Vector2(2, gridHeight - 4)));
 	agents.push(new Agent(new Vector2(2, gridHeight - 5)));
+
 
 	stage.addEventListener('stagemouseup', function (ev) {
 		destination.x = ev.stageX / gridPx - 0.5;
@@ -64,21 +65,25 @@ function gameTick(dt) {
 		var cohesion = steeringBehaviourCohesion(agent);
 		var alignment = steeringBehaviourAlignment(agent);
 
-		if (i == 0) {
-			console.log(round(seek.length()) + ' ' + round(separation.length()) + ' ' + round(cohesion.length()) + ' ' + round(alignment.length()) + ' : ' + round(agent.velocity.length()));
-		}
+		//if (i == 0) {
+		//	console.log(round(seek.length()) + ' ' + round(separation.length()) + ' ' + round(cohesion.length()) + ' ' + round(alignment.length()) + ' : ' + round(agent.velocity.length()));
+		//}
 
 		//If there is significant separation going on, don't apply cohesion as they'll just fight each other
 		if (separation.length() > 3) {
 			cohesion = Vector2.zero;
 		}
 
-		agent.forceToApply = seek.plus(separation).plus(cohesion).plus(alignment).mul(dt);
+		agent.forceToApply = seek.plus(separation).plus(cohesion.mul(0.1)).plus(alignment).mul(dt);
 	}
 
 	//Move agents based on forces being applied (aka physics)
 	for (i = agents.length - 1; i >= 0; i--) {
 		agent = agents[i];
+
+		//if (i == 0) {
+		//	console.log(round(agent.velocity.length()) + ' ' + round(agent.velocity.x) + ',' + round(agent.velocity.y) + '    ' + round(agent.forceToApply.x) + ',' + round(agent.forceToApply.y));
+		//}
 
 		//Apply the force
 		agent.velocity = agent.velocity.plus(agent.forceToApply);
