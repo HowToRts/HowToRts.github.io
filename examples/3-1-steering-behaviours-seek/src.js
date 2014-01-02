@@ -38,7 +38,7 @@ function gameTick(dt) {
 	for (var i = agents.length - 1; i >= 0; i--) {
 		var agent = agents[i];
 
-		//Work out our behaviours
+		//Work out the force for our behaviour
 		var seek = steeringBehaviourSeek(agent);
 
 		//Apply the force
@@ -65,7 +65,7 @@ function steeringBehaviourSeek(agent) {
 	//Desired velocity (move there at maximum speed)
 	desired = desired.mul(agent.maxSpeed / desired.length());
 	//The velocity change we want
-	var force = desired.minus(agent.velocity);
+	var velocityChange = desired.minus(agent.velocity);
 	//Convert to a force
-	return force.mul(agent.maxForce / agent.maxSpeed);
+	return velocityChange.mul(agent.maxForce / agent.maxSpeed);
 }

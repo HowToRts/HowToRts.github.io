@@ -39,6 +39,8 @@ var towerBitmaps = [];
 var agentId = 1;
 var agentBitmaps = {};
 
+var targetShape;
+
 function loadingComplete() {
 	startGame();
 
@@ -64,26 +66,19 @@ function loadingComplete() {
 		rendererTick();
 		stage.update();
 	});
+
+	targetShape = new createjs.Shape();
+	targetShape.graphics.beginStroke('#f00');
+	targetShape.graphics.drawCircle(0, 0, 5);
+	targetShape.x = (destination.x + 0.5) * gridPx;
+	targetShape.y = (destination.y + 0.5) * gridPx;
+	stage.addChild(targetShape);
 }
 
 
 function rendererTick() {
-	//Create tower bitmaps for all the new towers
-	//while (towerBitmaps.length < towers.length) {
-	//	var tower = towers[towerBitmaps.length];
-	//	var container = new createjs.Container();
-	//	container.addChild(createCenteredBitmap('tower'));
-	//	container.addChild(createCenteredBitmap('turret'));
-	//	container.x = gridPx * (tower.x + 0.5);
-	//	container.y = gridPx * (tower.y + 0.5);
-	//	towerBitmaps.push(container);
-	//	stage.addChild(container);
-	//}
-
-
 	//Create new enemy bitmaps as required
 	//Update enemy positions
-	//Mark bitmaps as alive
 	for (var i = 0; i < agents.length; i++) {
 		var e = agents[i];
 		if (!e._id) {
