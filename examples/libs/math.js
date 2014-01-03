@@ -21,6 +21,12 @@ Vector2.prototype.normalize = function () {
 
 	return new Vector2(this.x / length, this.y / length);
 };
+Vector2.prototype.round = function () {
+	return new Vector2(Math.round(this.x), Math.round(this.y));
+};
+Vector2.prototype.floor = function () {
+	return new Vector2(Math.floor(this.x), Math.floor(this.y));
+};
 
 Vector2.prototype.minus = function (other) {
 	return new Vector2(this.x - other.x, this.y - other.y);
