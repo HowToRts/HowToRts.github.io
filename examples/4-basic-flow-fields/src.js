@@ -60,26 +60,12 @@ function gameTick(dt) {
 		agent = agents[i];
 
 		//Work out our behaviours
-		var seek = steeringBehaviourFlowField(agent, destination);
-		var separation = Vector2.zero;//steeringBehaviourSeparation(agent);
-		var cohesion = Vector2.zero;//steeringBehaviourCohesion(agent);
-		var alignment = Vector2.zero;//steeringBehaviourAlignment(agent);
-
-		//if (i == 0) {
-		//	console.log(round(seek.length()) + ' ' + round(separation.length()) + ' ' + round(cohesion.length()) + ' ' + round(alignment.length()) + ' : ' + round(agent.velocity.length()));
-		//}
-
-		//Combine them to come up with a total force to apply, decreasing the effect of cohesion
-		agent.forceToApply = seek.plus(separation).plus(cohesion.mul(0.1)).plus(alignment.mul(0.5));
+		agent.forceToApply = steeringBehaviourFlowField(agent, destination);;
 	}
 
 	//Move agents based on forces being applied (aka physics)
 	for (i = agents.length - 1; i >= 0; i--) {
 		agent = agents[i];
-
-		//if (i == 0) {
-		//	console.log(round(agent.velocity.length()) + ' ' + round(agent.velocity.x) + ',' + round(agent.velocity.y) + '    ' + round(agent.forceToApply.x) + ',' + round(agent.forceToApply.y));
-		//}
 
 		//Apply the force
 		agent.velocity = agent.velocity.plus(agent.forceToApply.mul(dt));
@@ -98,111 +84,19 @@ function gameTick(dt) {
 	}
 }
 
-function steeringBehaviourSeek(agent, dest) {
-
-	//Desired change of location
-	var desired = dest.minus(agent.position);
-	//Desired velocity (move there at maximum speed)
-	desired = desired.mul(agent.maxSpeed / desired.length());
-	//The velocity change we want
-	var velocityChange = desired.minus(agent.velocity);
-	//Convert to a force
-	return velocityChange.mul(agent.maxForce / agent.maxSpeed);
-}
-
-function steeringBehaviourSeparation(agent) {
-	var totalForce = Vector2.zero;
-	var neighboursCount = 0;
-
-	for (var i = 0; i < agents.length; i++) {
-		var a = agents[i];
-		if (a != agent) {
-			var distance = agent.position.distanceTo(a.position);
-			if (distance < agent.minSeparation && distance > 0) {
-				//Vector to other agent
-				var pushForce = agent.position.minus(a.position);
-				totalForce = totalForce.plus(pushForce.div(agent.radius));
-				neighboursCount++;
-			}
-		}
-	}
-
-	if (neighboursCount == 0) {
-		return Vector2.zero;
-	}
-
-	totalForce = totalForce.div(neighboursCount);
-	return totalForce.mul(agent.maxForce);
-}
-
-function steeringBehaviourCohesion(agent) {
-	//Start with just our position
-	var centerOfMass = agent.position;
-	var neighboursCount = 1;
-
-	for (var i = 0; i < agents.length; i++) {
-		var a = agents[i];
-		if (a != agent) {
-			var distance = agent.position.distanceTo(a.position);
-			if (distance < agent.maxCohesion) {
-				//sum up the position of our neighbours
-				centerOfMass = centerOfMass.plus(a.position);
-				neighboursCount++;
-			}
-		}
-	}
-
-	if (neighboursCount == 1) {
-		return Vector2.zero;
-	}
-
-	//Get the average position of ourself and our neighbours
-	centerOfMass = centerOfMass.div(neighboursCount);
-
-	//seek that position
-	return steeringBehaviourSeek(agent, centerOfMass);
-}
-
-function steeringBehaviourAlignment(agent) {
-	var averageHeading = Vector2.zero;
-	var neighboursCount = 0;
-
-	//for each of our neighbours (including ourself)
-	for (var i = 0; i < agents.length; i++) {
-		var a = agents[i];
-		var distance = agent.position.distanceTo(a.position);
-		//That are within the max distance and are moving
-		if (distance < agent.maxCohesion && a.velocity.length() > 0) {
-			//Sum up our headings
-			averageHeading = averageHeading.plus(a.velocity.normalize());
-			neighboursCount++;
-		}
-	}
-
-	if (neighboursCount == 0) {
-		return Vector2.zero;
-	}
-
-	//Divide to get the average heading
-	averageHeading = averageHeading.div(neighboursCount);
-
-	//Steer towards that heading
-	var desired = averageHeading.mul(agent.maxSpeed);
-	var force = desired.minus(agent.velocity);
-	return force.mul(agent.maxForce / agent.maxSpeed);
-}
-
 function steeringBehaviourFlowField(agent) {
 
-	var floor = agent.position.floor(); //Coordinate of the top left, so 0,1
-
-	//Apply bilinear interpolation on the flow field to work out our force.
+	//Work out the force to apply to us based on the flow field grid squares we are on.
+	//we apply bilinear interpolation on the 4 grid squares nearest to us to work out our force.
 	// http://en.wikipedia.org/wiki/Bilinear_interpolation#Nonlinear
 
-	var f00 = flowField[floor.x][floor.y] || Vector2.zero;
-	var f01 = flowField[floor.x][floor.y + 1] || Vector2.zero;
-	var f10 = flowField[floor.x + 1][floor.y] || Vector2.zero;
-	var f11 = flowField[floor.x + 1][floor.y + 1] || Vector2.zero;
+	var floor = agent.position.floor(); //Top left Coordinate of the 4
+
+	//The 4 weights we'll interpolate, see http://en.wikipedia.org/wiki/File:Bilininterp.png for the coordinates
+	var f00 = flowField[floor.x][floor.y];
+	var f01 = flowField[floor.x][floor.y + 1];
+	var f10 = flowField[floor.x + 1][floor.y];
+	var f11 = flowField[floor.x + 1][floor.y + 1];
 
 	//Do the x interpolations
 	var xWeight = agent.position.x - floor.x;
@@ -213,28 +107,22 @@ function steeringBehaviourFlowField(agent) {
 	//Do the y interpolation
 	var yWeight = agent.position.y - floor.y;
 
-	//This is now the direction we want to be travelling in
+	//This is now the direction we want to be travelling in (needs to be normalized)
 	var direction = top.mul(1 - yWeight).plus(bottom.mul(yWeight)).normalize();
 
+
+	//If we are centered on a grid square with no vector this will happen
 	if (isNaN(direction.length())) {
 		return Vector2.zero;
 	}
 
+	//Multiply our direction by speed for our desired speed
 	var desiredVelocity = direction.mul(agent.maxSpeed);
 
 	//The velocity change we want
 	var velocityChange = desiredVelocity.minus(agent.velocity);
 	//Convert to a force
 	return velocityChange.mul(agent.maxForce / agent.maxSpeed);
-
-
-	//TODO Calculate a change of force so we will move towards the direction we want to travel in
-	return result.mul(agent.maxForce);
-
-	//Old: just use the one we are on
-	var f = floor.x < gridWidth && floor.y < gridHeight && floor.x >= 0 && floor.y >= 0 ? flowField[floor.x][floor.y] : null;
-
-	return f ? f.mul(agent.maxForce) : Vector2.zero;
 }
 
 var dijkstraGrid;

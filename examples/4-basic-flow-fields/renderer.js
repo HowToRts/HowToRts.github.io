@@ -64,7 +64,7 @@ function loadingComplete() {
 
 
 	targetShape = new createjs.Shape();
-	targetShape.graphics.beginStroke('#0f0');
+	targetShape.graphics.beginStroke('#00f');
 	targetShape.graphics.drawCircle(0, 0, 5);
 	stage.addChild(targetShape);
 
@@ -94,8 +94,8 @@ function loadingComplete() {
 
 	//Visualise the flow field
 	var flowFieldShape = new createjs.Shape();
-	flowFieldShape.x = gridPx / 2;
-	flowFieldShape.y = gridPx / 2;
+	flowFieldShape.x = gridPx / 2 + 0.5;
+	flowFieldShape.y = gridPx / 2 + 0.5;
 	flowFieldShape.graphics.beginStroke('#00f');
 	for (x = 0; x < gridWidth; x++) {
 		for (y = 0; y < gridWidth; y++) {
