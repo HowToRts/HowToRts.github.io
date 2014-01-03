@@ -31,10 +31,10 @@ var destination = new Vector2(gridWidth - 2, gridHeight / 2); //middle right
 //Called to start the game
 function startGame() {
 	for (var y = 0; y < gridHeight; y++) {
-		agents.push(new Agent(new Vector2(1, y)));
+		agents.push(new Agent(new Vector2(0, y)));
 	}
 	for (var i = 0; i < 30; i++) {
-		obstacles.push(new Vector2(Math.floor(Math.random() * (gridWidth - 1)), Math.floor(Math.random() * (gridHeight - 1))));
+		obstacles.push(new Vector2(1 + Math.floor(Math.random() * (gridWidth - 2)), Math.floor(Math.random() * (gridHeight - 1))));
 	}
 
 	generateDijkstraGrid();
@@ -214,7 +214,11 @@ function steeringBehaviourFlowField(agent) {
 	var yWeight = agent.position.y - floor.y;
 
 	//This is now the direction we want to be travelling in
-	var direction = top.mul(1 - yWeight).plus(bottom.mul(yWeight));
+	var direction = top.mul(1 - yWeight).plus(bottom.mul(yWeight)).normalize();
+
+	if (isNaN(direction.length())) {
+		return Vector2.zero;
+	}
 
 	var desiredVelocity = direction.mul(agent.maxSpeed);
 
