@@ -175,4 +175,9 @@ I'm going to save this for its own article as we need to do a fair bit of work t
 
 We've improved the Flow Field we generate to not drive us in to walls so much, and hopefully make us get off the correct path a bit less.
 
-We still need to implement LOS testing and probably do some more general improvements to our Flow Field such as settings cells to have vectors with better than 45 degree accuracy.
+We still need to implement LOS testing and probably do some more general improvements to our Flow Field such as setting cells to have vectors with better than 45 degree accuracy.
+
+[Here is the example with the above improvements]
+
+[Here is the example with the above improvements]: /examples/5-flow-field-improvements/index.html
+
