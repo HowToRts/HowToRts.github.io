@@ -2,13 +2,28 @@
 layout: default
 title: Welcome!
 ---
-<h3>Welcome to How to RTS</h3>
+### Welcome to How to RTS
 
-<p>I've been recently interested in RTS Games (Planetary Annihilation and SupCom in particular), so I plan to slowly build up an RTS engine of my own. Along the way I'll do some posts and miniprojects explaining and showing the various things involved.</p>
+I've been recently interested in RTS Games (Planetary Annihilation and SupCom in particular), so I plan to slowly build up an RTS engine of my own. Along the way I'll do some posts and miniprojects explaining and showing the various things involved.
 
-<p>I'll be posting mini examples as runnable javascript apps to explain how things work</p>
+I'll be posting mini examples as runnable javascript apps to explain how things work.
 
-<h3>Done so far</h3>
+Check back regularly or subscribe using the [Atom Feed].
+
+[Atom Feed]: /atom.xml
+
+#### Plan
+
+This is a rough list around what I plan on developing and writing up.
+
+- Tower defense essentials
+- Pathfinding - Dijkstra / A*
+- Modern Pathfinding - flow fields
+- AI - Planning
+- How to calculate/render vision
+- How to merge range weapon circles for rendering
+
+### Posts so far
 
 <div class="bloglist">
 {% for post in site.posts %}
@@ -18,16 +33,3 @@ title: Welcome!
 {% endfor %}
 </div>
 
-<h3>Plan</h3>
-
-<p>This is a rough list around what I plan on developing and writing up.</p>
-
-<h4>RTS Basics</h4>
-<ul>
-<li>Tower defense essentials</li>
-<li>Pathfinding - Dijkstra / A*</li>
-<li>Modern Pathfinding - flow fields</li>
-<li>AI - Planning</li>
-<li>How to calculate/render vision</li>
-<li>How to merge range weapon circles for rendering</li>
-</ul>

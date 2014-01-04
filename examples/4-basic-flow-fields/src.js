@@ -30,7 +30,7 @@ var destination = new Vector2(gridWidth - 2, gridHeight / 2); //middle right
 
 //Called to start the game
 function startGame() {
-	for (var y = 0; y < gridHeight; y++) {
+	for (var y = 1; y < gridHeight - 1; y++) {
 		agents.push(new Agent(new Vector2(0, y)));
 	}
 	for (var i = 0; i < 30; i++) {
@@ -175,12 +175,12 @@ function generateDijkstraGrid() {
 function generateFlowField() {
 	var x, y;
 
-	//Generate an empty grid, set all places as null, which will stand for no good direction
+	//Generate an empty grid, set all places as Vector2.zero, which will stand for no good direction
 	flowField = new Array(gridWidth);
 	for (x = 0; x < gridWidth; x++) {
 		var arr = new Array(gridHeight);
 		for (y = 0; y < gridHeight; y++) {
-			arr[y] = null;
+			arr[y] = Vector2.zero;
 		}
 		flowField[x] = arr;
 	}

@@ -49,12 +49,12 @@ We then go through each grid square, look at all its neighbours (including diago
 function generateFlowField() {
 	var x, y;
 
-	//Generate an empty grid, set all places as null, which will stand for no good direction
+	//Generate an empty grid, set all places as Vector2.zero, which will stand for no good direction
 	flowField = new Array(gridWidth);
 	for (x = 0; x < gridWidth; x++) {
 		var arr = new Array(gridHeight);
 		for (y = 0; y < gridHeight; y++) {
-			arr[y] = null;
+			arr[y] = Vector2.zero;
 		}
 		flowField[x] = arr;
 	}
