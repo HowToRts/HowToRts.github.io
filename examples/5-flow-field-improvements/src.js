@@ -66,7 +66,14 @@ function gameTick(dt) {
 		agent = agents[i];
 
 		//Work out our behaviours
-		agent.forceToApply = steeringBehaviourFlowField(agent, destination);;
+		var ff = steeringBehaviourFlowField(agent);
+		var lc = steeringBehaviourLowestCost(agent);
+		agent.forceToApply = ff.plus(lc.mul(0.3));
+
+		var l = agent.forceToApply.length();
+		if (l > agent.maxForce) {
+			agent.forceToApply = agent.forceToApply.mul(agent.maxForce / l);
+		}
 	}
 
 	//Move agents based on forces being applied (aka physics)
@@ -114,16 +121,68 @@ function steeringBehaviourFlowField(agent) {
 	var yWeight = agent.position.y - floor.y;
 
 	//This is now the direction we want to be travelling in (needs to be normalized)
-	var direction = top.mul(1 - yWeight).plus(bottom.mul(yWeight)).normalize();
+	var desiredDirection = top.mul(1 - yWeight).plus(bottom.mul(yWeight)).normalize();
 
 
 	//If we are centered on a grid square with no vector this will happen
-	if (isNaN(direction.length())) {
+	if (isNaN(desiredDirection.length())) {
 		return Vector2.zero;
 	}
 
+	return steerTowards(agent, desiredDirection);
+}
+
+function steeringBehaviourLowestCost(agent) {
+
+	//Do nothing if the agent isn't moving
+	if (agent.velocity.length() == 0) {
+		return Vector2.zero;
+	}
+
+	//Find our 4 closest neighbours
+	var floor = agent.position.floor(); //Top left Coordinate of the 4
+	var f00 = isValid(floor.x, floor.y) ? dijkstraGrid[floor.x][floor.y] : Number.MAX_VALUE;
+	var f01 = isValid(floor.x, floor.y + 1) ? dijkstraGrid[floor.x][floor.y + 1] : Number.MAX_VALUE;
+	var f10 = isValid(floor.x + 1, floor.y) ? dijkstraGrid[floor.x + 1][floor.y] : Number.MAX_VALUE;
+	var f11 = isValid(floor.x + 1, floor.y + 1) ? dijkstraGrid[floor.x + 1][floor.y + 1] : Number.MAX_VALUE;
+
+	//Find the position(s) of the lowest, there may be multiple
+	var minVal = Math.min(f00, f01, f10, f11);
+	var minCoord = [];
+
+	if (f00 == minVal) {
+		minCoord.push(floor.plus(new Vector2(0, 0)));
+	}
+	if (f01 == minVal) {
+		minCoord.push(floor.plus(new Vector2(0, 1)));
+	}
+	if (f10 == minVal) {
+		minCoord.push(floor.plus(new Vector2(1, 0)));
+	}
+	if (f11 == minVal) {
+		minCoord.push(floor.plus(new Vector2(1, 1)));
+	}
+
+	//Tie-break by choosing the one we are most aligned with
+	var currentDirection = agent.velocity.normalize();
+	var desiredDirection;
+	minVal = Number.MAX_VALUE;
+	for (var i = 0; i < minCoord.length; i++) {
+		var directionTo = minCoord[i].minus(agent.position).normalize();
+		var length = directionTo.minus(currentDirection).length();
+		if (length < minVal) {
+			minVal = length;
+			desiredDirection = directionTo;
+		}
+	}
+
+	//Steer towards it
+	return steerTowards(agent, desiredDirection);
+}
+
+function steerTowards(agent, desiredDirection) {
 	//Multiply our direction by speed for our desired speed
-	var desiredVelocity = direction.mul(agent.maxSpeed);
+	var desiredVelocity = desiredDirection.mul(agent.maxSpeed);
 
 	//The velocity change we want
 	var velocityChange = desiredVelocity.minus(agent.velocity);
