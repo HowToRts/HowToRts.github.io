@@ -7,7 +7,7 @@ date:   2014-01-04
 
 Finally, time to get to the good stuff :)
 
-This article will go through what flow fields are and show a very basic implementation of them.
+This article will go through what Flow Fields are and show a very basic implementation of them.
 Everything in here was learnt from Elijah Emersons article in [Game AI Pro], Graham Penthenys article also in [Game AI Pro] and the [Continuum Crowds] Paper which also uses the technique. So a huge thank you to all of these people for doing the hard work. The [Game AI Pro] book is awesome and I wholeheartedly recommend buying it.
 
 [Game AI Pro]: http://www.gameaipro.com/
@@ -41,12 +41,12 @@ There are many different techniques that can be used to generate a Flow Field, w
 
 We will reuse our dijkstra flood fill code from before, this generates the distance-to-destination numbers shown on the grid.
 
-We then go through each grid square, look at all its neighbours (including diagonals) and choose the one with the lowest distance-to-destination. We then set our grid square to have a vector in this direction. We do not set Vectors for impassable grid squares.
+We then go through each grid square, look at all its neighbours (including diagonals), choose the one with the lowest distance-to-destination and set our grid square to have a vector in this direction. We do not set Vectors for impassable grid squares.
 
 This gives a grid like follows:<br/>
 <img src="/images/flowfield.png" />
 
-You'll notice that there are grid squares which don't give the most efficient path (such as the 4 at the top right, it should be pointing directly at the destination), this happens as we only support straight lines and 45 degree diagonals. The Supreme Commander 2 implementation uses Line of Site tests to optimise this case and provide visually pleasing results. We will also try and direct an agent on a diagonal between 2 impassable areas, which would not be passable.
+You'll notice that there are grid squares which don't give the most efficient path (such as the 4 at the top right, it should be pointing directly at the destination), this happens as we only support straight lines and 45 degree diagonals. The Supreme Commander 2 implementation uses Line of Site tests to to the destination to provide better paths when nearby. We will also try and direct an agent on a diagonal between 2 impassable areas, which would not be passable.
 
 With this grid in hand, we just need to create a new steering behaviour to follow it.
 
@@ -107,7 +107,9 @@ Above I've described the minimal essential components of Flow Fields to get our 
 
 To use this in a real game, we'll still need:
 
-- Physics - To stop agents moving through impassable areas
-- Flocking Behaviours - We probably want some degree of flocking behaviours so units don't get too separated.
-- Flow Field Tiling - Generating a Flow Field for an entire game map will probably be too big to fit in memory, this is another technique used in Supreme Commander 2 and Planetary Annihilation
-- Better Flow Field generation - Our Flow Field does not contain optimal paths. It needs to be improved to make more efficient paths
+- **Physics** - To stop agents moving through impassable areas
+- **Flocking Behaviours** - We probably want some degree of flocking behaviours so units don't get too separated.
+- **Pre-emptive collision avoidance** - In SupCom2 the units will avoid running in to each other when you run 2 groups at one another. The original Continuum Crowds paper talks about this, I'm not sure what was implemented for SupCom2
+- **Better Flow Field generation** - Our Flow Field does not contain optimal paths. It needs to be improved to make more efficient paths
+- **Handle grid squares with some cost to traverse** - Currently we assume all grid squares are impossible to cross or free
+- **Flow Field Tiling** - Generating a Flow Field for an entire game map will probably be too big to fit in memory, this is another technique used in Supreme Commander 2 and Planetary Annihilation to reduce memory usage and generation time
