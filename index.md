@@ -17,11 +17,17 @@ Check back regularly or subscribe using the [Atom Feed].
 This is a rough list around what I plan on developing and writing up.
 
 - Tower defense essentials
-- Pathfinding - Dijkstra / A*
-- Modern Pathfinding - flow fields
-- AI - Planning
+- Pathfinding - [Dijkstra] / A*
+- [Steering] and [Flocking]
+- Modern Pathfinding - [Flow Fields]
 - How to calculate/render vision
 - How to merge range weapon circles for rendering
+- AI - Planning
+
+[Dijkstra]: /2013/12/31/generating-a-path-dijkstra.html
+[Steering]: /2014/01/02/steering-introduction.html
+[Flocking]: /2014/01/03/steering-flocking.html
+[Flow Fields]: /2014/01/04/basic-flow-fields.html
 
 ### Posts so far
 
@@ -30,6 +36,7 @@ This is a rough list around what I plan on developing and writing up.
 	<small>{{ post.date | date_to_string }}</small>
 	<h4 class="post-title"><a href="{{ post.url | replace_first: '/', '' }}">{{ post.title }}</a></h4>
 	<p>{{ post.description }}</p>
+{% unless forloop.last %}<hr />{% endunless %}
 {% endfor %}
 </div>
 
