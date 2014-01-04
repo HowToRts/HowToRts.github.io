@@ -15,7 +15,7 @@ Agent = function (pos) {
 	this.position = pos;
 	this.rotation = 0;
 
-	this.velocity = Vector2.zero;
+	this.velocity = new B2Vec2();
 
 	this.maxForce = 20; //rate of acceleration
 	this.maxSpeed = 4; //grid squares / second
@@ -24,21 +24,24 @@ Agent = function (pos) {
 	this.minSeparation = 0.8; // We'll move away from anyone nearer than this
 
 	this.maxCohesion = 3.5; //We'll move closer to anyone within this bound
+
+	this.maxForceSquared = this.maxForce * this.maxForce;
+	this.maxSpeedSquared = this.maxSpeed * this.maxSpeed;
 };
 
-var destination = new Vector2(gridWidth - 2, gridHeight / 2); //middle right
+var destination = new B2Vec2(gridWidth - 2, gridHeight / 2); //middle right
 
 //Called to start the game
 function startGame() {
 	for (var yPos = 1; yPos < gridHeight - 1; yPos++) {
-		agents.push(new Agent(new Vector2(0, yPos)));
+		agents.push(new Agent(new B2Vec2(0, yPos)));
 	}
 	for (var i = 0; i < 30; i++) {
 		var x = 1 + Math.floor(Math.random() * (gridWidth - 3));
 		var y = Math.floor(Math.random() * (gridHeight - 2));
-		obstacles.push(new Vector2(x, y));
+		obstacles.push(new B2Vec2(x, y));
 	}
-	obstacles.push(new Vector2(gridWidth - 5, gridHeight / 2));
+	obstacles.push(new B2Vec2(gridWidth - 5, gridHeight / 2));
 
 	generateDijkstraGrid();
 	generateFlowField();
@@ -65,11 +68,11 @@ function gameTick(dt) {
 		//Work out our behaviours
 		var ff = steeringBehaviourFlowField(agent);
 		var lc = steeringBehaviourLowestCost(agent);
-		agent.forceToApply = ff.plus(lc.mul(0.3));
+		agent.forceToApply = ff.Add(lc.Multiply(0.3));
 
-		var l = agent.forceToApply.length();
-		if (l > agent.maxForce) {
-			agent.forceToApply = agent.forceToApply.mul(agent.maxForce / l);
+		var lengthSquared = agent.forceToApply.LengthSquared();
+		if (lengthSquared > agent.maxForceSquared) {
+			agent.forceToApply.Multiply(agent.maxForce / Math.sqrt(lengthSquared));
 		}
 	}
 
@@ -78,19 +81,19 @@ function gameTick(dt) {
 		agent = agents[i];
 
 		//Apply the force
-		agent.velocity = agent.velocity.plus(agent.forceToApply.mul(dt));
+		agent.velocity.Add(agent.forceToApply.Multiply(dt));
 
 		//Cap speed as required
-		var speed = agent.velocity.length();
-		if (speed > agent.maxSpeed) {
-			agent.velocity = agent.velocity.mul(agent.maxSpeed / speed);
+		var speedSquared = agent.velocity.LengthSquared();
+		if (speedSquared > agent.maxSpeedSquared) {
+			agent.velocity.Multiply(agent.maxSpeed / Math.sqrt(speedSquared));
 		}
 
 		//Calculate our new movement angle
-		agent.rotation = agent.velocity.angle();
+		agent.rotation = agent.velocity.Angle();
 
 		//Move a bit
-		agent.position = agent.position.plus(agent.velocity.mul(dt));
+		agent.position.Add(agent.velocity.Copy().Multiply(dt));
 	}
 }
 
@@ -100,30 +103,31 @@ function steeringBehaviourFlowField(agent) {
 	//we apply bilinear interpolation on the 4 grid squares nearest to us to work out our force.
 	// http://en.wikipedia.org/wiki/Bilinear_interpolation#Nonlinear
 
-	var floor = agent.position.floor(); //Top left Coordinate of the 4
+	//Top left Coordinate of the 4
+	var floor = agent.position.Copy().Floor();
 
 	//The 4 weights we'll interpolate, see http://en.wikipedia.org/wiki/File:Bilininterp.png for the coordinates
-	var f00 = isValid(floor.x, floor.y) ? flowField[floor.x][floor.y] : Vector2.zero;
-	var f01 = isValid(floor.x, floor.y + 1) ? flowField[floor.x][floor.y + 1] : Vector2.zero;
-	var f10 = isValid(floor.x + 1, floor.y) ? flowField[floor.x + 1][floor.y] : Vector2.zero;
-	var f11 = isValid(floor.x + 1, floor.y + 1) ? flowField[floor.x + 1][floor.y + 1] : Vector2.zero;
+	var f00 = (isValid(floor.x, floor.y) ? flowField[floor.x][floor.y] : B2Vec2.Zero).Copy();
+	var f01 = (isValid(floor.x, floor.y + 1) ? flowField[floor.x][floor.y + 1] : B2Vec2.Zero).Copy();
+	var f10 = (isValid(floor.x + 1, floor.y) ? flowField[floor.x + 1][floor.y] : B2Vec2.Zero).Copy();
+	var f11 = (isValid(floor.x + 1, floor.y + 1) ? flowField[floor.x + 1][floor.y + 1] : B2Vec2.Zero).Copy();
 
 	//Do the x interpolations
 	var xWeight = agent.position.x - floor.x;
 
-	var top = f00.mul(1 - xWeight).plus(f10.mul(xWeight));
-	var bottom = f01.mul(1 - xWeight).plus(f11.mul(xWeight));
+	var top = f00.Multiply(1 - xWeight).Add(f10.Multiply(xWeight));
+	var bottom = f01.Multiply(1 - xWeight).Add(f11.Multiply(xWeight));
 
 	//Do the y interpolation
 	var yWeight = agent.position.y - floor.y;
 
 	//This is now the direction we want to be travelling in (needs to be normalized)
-	var desiredDirection = top.mul(1 - yWeight).plus(bottom.mul(yWeight)).normalize();
-
+	var desiredDirection = top.Multiply(1 - yWeight).Add(bottom.Multiply(yWeight));
+	desiredDirection.Normalize();
 
 	//If we are centered on a grid square with no vector this will happen
-	if (isNaN(desiredDirection.length())) {
-		return Vector2.zero;
+	if (isNaN(desiredDirection.LengthSquared())) {
+		return desiredDirection.SetZero();
 	}
 
 	return steerTowards(agent, desiredDirection);
@@ -132,12 +136,12 @@ function steeringBehaviourFlowField(agent) {
 function steeringBehaviourLowestCost(agent) {
 
 	//Do nothing if the agent isn't moving
-	if (agent.velocity.length() == 0) {
-		return Vector2.zero;
+	if (agent.velocity.LengthSquared() == 0) {
+		return new B2Vec2();
 	}
 
 	//Find our 4 closest neighbours
-	var floor = agent.position.floor(); //Top left Coordinate of the 4
+	var floor = agent.position.Copy().Floor(); //Top left Coordinate of the 4
 	var f00 = isValid(floor.x, floor.y) ? dijkstraGrid[floor.x][floor.y] : Number.MAX_VALUE;
 	var f01 = isValid(floor.x, floor.y + 1) ? dijkstraGrid[floor.x][floor.y + 1] : Number.MAX_VALUE;
 	var f10 = isValid(floor.x + 1, floor.y) ? dijkstraGrid[floor.x + 1][floor.y] : Number.MAX_VALUE;
@@ -148,27 +152,30 @@ function steeringBehaviourLowestCost(agent) {
 	var minCoord = [];
 
 	if (f00 == minVal) {
-		minCoord.push(floor.plus(new Vector2(0, 0)));
+		minCoord.push(floor.Copy());
 	}
 	if (f01 == minVal) {
-		minCoord.push(floor.plus(new Vector2(0, 1)));
+		minCoord.push(floor.Copy().Add(new B2Vec2(0, 1)));
 	}
 	if (f10 == minVal) {
-		minCoord.push(floor.plus(new Vector2(1, 0)));
+		minCoord.push(floor.Copy().Add(new B2Vec2(1, 0)));
 	}
 	if (f11 == minVal) {
-		minCoord.push(floor.plus(new Vector2(1, 1)));
+		minCoord.push(floor.Copy().Add(new B2Vec2(1, 1)));
 	}
 
 	//Tie-break by choosing the one we are most aligned with
-	var currentDirection = agent.velocity.normalize();
+	var currentDirection = agent.velocity.Copy();
+	currentDirection.Normalize();
+
 	var desiredDirection;
 	minVal = Number.MAX_VALUE;
 	for (var i = 0; i < minCoord.length; i++) {
-		var directionTo = minCoord[i].minus(agent.position).normalize();
-		var length = directionTo.minus(currentDirection).length();
-		if (length < minVal) {
-			minVal = length;
+		minCoord[i].Subtract(agent.position).Normalize();
+		var directionTo = minCoord[i];
+		var lengthSquared = directionTo.Copy().Subtract(currentDirection).LengthSquared();
+		if (lengthSquared < minVal) {
+			minVal = lengthSquared;
 			desiredDirection = directionTo;
 		}
 	}
@@ -179,12 +186,12 @@ function steeringBehaviourLowestCost(agent) {
 
 function steerTowards(agent, desiredDirection) {
 	//Multiply our direction by speed for our desired speed
-	var desiredVelocity = desiredDirection.mul(agent.maxSpeed);
+	var desiredVelocity = desiredDirection.Multiply(agent.maxSpeed);
 
 	//The velocity change we want
-	var velocityChange = desiredVelocity.minus(agent.velocity);
+	var velocityChange = desiredVelocity.Subtract(agent.velocity);
 	//Convert to a force
-	return velocityChange.mul(agent.maxForce / agent.maxSpeed);
+	return velocityChange.Multiply(agent.maxForce / agent.maxSpeed);
 }
 
 var dijkstraGrid;
@@ -209,7 +216,8 @@ function generateDijkstraGrid() {
 	}
 
 	//flood fill out from the end point
-	var pathEnd = destination.round();
+	var pathEnd = destination.Copy();
+	pathEnd.Round();
 	pathEnd.distance = 0;
 	dijkstraGrid[pathEnd.x][pathEnd.y] = 0;
 
@@ -242,7 +250,7 @@ function generateFlowField() {
 	for (x = 0; x < gridWidth; x++) {
 		var arr = new Array(gridHeight);
 		for (y = 0; y < gridHeight; y++) {
-			arr[y] = Vector2.zero;
+			arr[y] = B2Vec2.Zero;
 		}
 		flowField[x] = arr;
 	}
@@ -256,7 +264,7 @@ function generateFlowField() {
 				continue;
 			}
 
-			var pos = new Vector2(x, y);
+			var pos = new B2Vec2(x, y);
 			var neighbours = allNeighboursOf(pos);
 
 			//Go through all neighbours and find the one with the lowest distance
@@ -274,7 +282,10 @@ function generateFlowField() {
 
 			//If we found a valid neighbour, point in its direction
 			if (min != null) {
-				flowField[x][y] = min.minus(pos).normalize();
+				var v = min.Copy();
+				v.Subtract(pos);
+				v.Normalize();
+				flowField[x][y] = v;
 			}
 		}
 	}
@@ -283,17 +294,17 @@ function generateFlowField() {
 function straightNeighboursOf(v) {
 	var res = [];
 	if (v.x > 0) {
-		res.push(new Vector2(v.x - 1, v.y));
+		res.push(new B2Vec2(v.x - 1, v.y));
 	}
 	if (v.y > 0) {
-		res.push(new Vector2(v.x, v.y - 1));
+		res.push(new B2Vec2(v.x, v.y - 1));
 	}
 
 	if (v.x < gridWidth - 1) {
-		res.push(new Vector2(v.x + 1, v.y));
+		res.push(new B2Vec2(v.x + 1, v.y));
 	}
 	if (v.y < gridHeight - 1) {
-		res.push(new Vector2(v.x, v.y + 1));
+		res.push(new B2Vec2(v.x, v.y + 1));
 	}
 
 	return res;
@@ -319,38 +330,38 @@ function allNeighboursOf(v) {
 	//We test each straight direction, then subtest the next one clockwise
 
 	if (left) {
-		res.push(new Vector2(x - 1, y));
+		res.push(new B2Vec2(x - 1, y));
 
 		//left up
 		if (up && isValid(x - 1, y - 1)) {
-			res.push(new Vector2(x - 1, y - 1));
+			res.push(new B2Vec2(x - 1, y - 1));
 		}
 	}
 
 	if (up) {
-		res.push(new Vector2(x, y - 1));
+		res.push(new B2Vec2(x, y - 1));
 
 		//up right
 		if (right && isValid(x + 1, y - 1)) {
-			res.push(new Vector2(x + 1, y - 1));
+			res.push(new B2Vec2(x + 1, y - 1));
 		}
 	}
 
 	if (right) {
-		res.push(new Vector2(x + 1, y));
+		res.push(new B2Vec2(x + 1, y));
 
 		//right down
 		if (down && isValid(x + 1, y + 1)) {
-			res.push(new Vector2(x + 1, y + 1));
+			res.push(new B2Vec2(x + 1, y + 1));
 		}
 	}
 
 	if (down) {
-		res.push(new Vector2(x, y + 1));
+		res.push(new B2Vec2(x, y + 1));
 
 		//down left
 		if (left && isValid(x - 1, y + 1)) {
-			res.push(new Vector2(x - 1, y + 1));
+			res.push(new B2Vec2(x - 1, y + 1));
 		}
 	}
 

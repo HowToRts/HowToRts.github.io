@@ -4158,12 +4158,16 @@ Box2D.postDefs = [];
    b2Vec2.prototype.SetZero = function () {
       this.x = 0.0;
       this.y = 0.0;
+
+      return this;
    }
    b2Vec2.prototype.Set = function (x_, y_) {
       if (x_ === undefined) x_ = 0;
       if (y_ === undefined) y_ = 0;
       this.x = x_;
       this.y = y_;
+
+      return this;
    }
    b2Vec2.prototype.SetV = function (v) {
       this.x = v.x;
@@ -4187,15 +4191,21 @@ Box2D.postDefs = [];
    b2Vec2.prototype.Add = function (v) {
       this.x += v.x;
       this.y += v.y;
+
+      return this;
    }
    b2Vec2.prototype.Subtract = function (v) {
       this.x -= v.x;
       this.y -= v.y;
+
+      return this;
    }
    b2Vec2.prototype.Multiply = function (a) {
       if (a === undefined) a = 0;
       this.x *= a;
       this.y *= a;
+
+      return this;
    }
    b2Vec2.prototype.MulM = function (A) {
       var tX = this.x;
