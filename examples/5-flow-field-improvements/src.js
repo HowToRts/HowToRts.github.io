@@ -30,11 +30,17 @@ var destination = new Vector2(gridWidth - 2, gridHeight / 2); //middle right
 
 //Called to start the game
 function startGame() {
-	for (var y = 1; y < gridHeight - 1; y++) {
-		agents.push(new Agent(new Vector2(0, y)));
+	for (var yPos = 1; yPos < gridHeight - 1; yPos++) {
+		agents.push(new Agent(new Vector2(0, yPos)));
 	}
 	for (var i = 0; i < 30; i++) {
-		obstacles.push(new Vector2(1 + Math.floor(Math.random() * (gridWidth - 2)), Math.floor(Math.random() * (gridHeight - 1))));
+		var x = 1 + Math.floor(Math.random() * (gridWidth - 3));
+		var y = Math.floor(Math.random() * (gridHeight - 2));
+		//Place 4 obstacles in a square
+		obstacles.push(new Vector2(x, y));
+		obstacles.push(new Vector2(x, y + 1));
+		obstacles.push(new Vector2(x + 1, y));
+		obstacles.push(new Vector2(x + 1, y + 1));
 	}
 
 	generateDijkstraGrid();
