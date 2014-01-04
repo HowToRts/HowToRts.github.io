@@ -93,10 +93,10 @@ function steeringBehaviourFlowField(agent) {
 	var floor = agent.position.floor(); //Top left Coordinate of the 4
 
 	//The 4 weights we'll interpolate, see http://en.wikipedia.org/wiki/File:Bilininterp.png for the coordinates
-	var f00 = flowField[floor.x][floor.y];
-	var f01 = flowField[floor.x][floor.y + 1];
-	var f10 = flowField[floor.x + 1][floor.y];
-	var f11 = flowField[floor.x + 1][floor.y + 1];
+	var f00 = isValid(floor.x, floor.y) ? flowField[floor.x][floor.y] : Vector2.zero;
+	var f01 = isValid(floor.x, floor.y + 1) ? flowField[floor.x][floor.y + 1] : Vector2.zero;
+	var f10 = isValid(floor.x + 1, floor.y) ? flowField[floor.x + 1][floor.y] : Vector2.zero;
+	var f11 = isValid(floor.x + 1, floor.y + 1) ? flowField[floor.x + 1][floor.y + 1] : Vector2.zero;
 
 	//Do the x interpolations
 	var xWeight = agent.position.x - floor.x;
