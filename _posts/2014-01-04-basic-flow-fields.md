@@ -93,8 +93,8 @@ function generateFlowField() {
 }
 {% endhighlight %}
 
-This gives a grid like follows:<br/>
-<img src="/images/flowfield.png" />
+This gives a grid like follows:
+<img class="inline" src="/images/flowfield.png" />
 
 You'll notice that there are grid squares which don't give the most efficient path (such as the 4 at the top right, it should be pointing directly at the destination), this happens as we only support straight lines and 45 degree diagonals. The Supreme Commander 2 implementation uses Line of Site tests to to the destination to provide better paths when nearby. We will also try and direct an agent on a diagonal between 2 impassable areas, which would not be passable.
 

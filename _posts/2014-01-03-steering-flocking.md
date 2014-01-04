@@ -135,8 +135,8 @@ function steeringBehaviourAlignment(agent) {
 
 ### Cohesion vs Separation and other behaviours
 
-As mentioned under cohesion above, in a situation such as this:<br />
-<img src="/images/flocking.png" /><br/>
+As mentioned under cohesion above, in a situation such as this:
+<img class="inline" src="/images/flocking.png" />
 The agents at the front of the pack (far right) will have a cohesion force pulling them away from their seek target. This can mean that they do not reach their top speed as there is always a force slowing them down.
 
 The solution I've decided upon is to scale down the effect of cohesion. For our purposes cohesion is not super important. So long as our units don't spread apart too much while moving then we are doing good.
