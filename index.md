@@ -19,7 +19,7 @@ This is a rough list around what I plan on developing and writing up.
 - Tower defense essentials
 - Pathfinding - [Dijkstra] / A*
 - [Steering] and [Flocking]
-- Modern Pathfinding - [Flow Fields]
+- Modern Pathfinding - [Flow Fields], Flow Fields with Formations
 - How to calculate/render vision
 - How to merge range weapon circles for rendering
 - AI - Planning
