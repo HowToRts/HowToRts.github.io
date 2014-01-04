@@ -171,6 +171,7 @@ function generateDijkstraGrid() {
 	}
 }
 
+
 function generateFlowField() {
 	var x, y;
 
@@ -184,6 +185,7 @@ function generateFlowField() {
 		flowField[x] = arr;
 	}
 
+	//for each grid square
 	for (x = 0; x < gridWidth; x++) {
 		for (y = 0; y < gridHeight; y++) {
 
@@ -195,6 +197,7 @@ function generateFlowField() {
 			var pos = new Vector2(x, y);
 			var neighbours = allNeighboursOf(pos);
 
+			//Go through all neighbours and find the one with the lowest distance
 			var min = null;
 			var minDist = 0;
 			for (var i = 0; i < neighbours.length; i++) {
@@ -207,6 +210,7 @@ function generateFlowField() {
 				}
 			}
 
+			//If we found a valid neighbour, point in its direction
 			if (min != null) {
 				flowField[x][y] = min.minus(pos).normalize();
 			}

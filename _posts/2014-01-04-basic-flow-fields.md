@@ -39,9 +39,59 @@ There are many different techniques that can be used to generate a Flow Field, w
 
 #### Implementation
 
-We will reuse our dijkstra flood fill code from before, this generates the distance-to-destination numbers shown on the grid.
+We will reuse our [dijkstra flood fill code from before], this generates the distance-to-destination numbers shown on the grid.
+
+[dijkstra flood fill code from before]: /2013/12/31/generating-a-path-dijkstra.html
 
 We then go through each grid square, look at all its neighbours (including diagonals), choose the one with the lowest distance-to-destination and set our grid square to have a vector in this direction. We do not set Vectors for impassable grid squares.
+
+{% highlight javascript %}
+function generateFlowField() {
+	var x, y;
+
+	//Generate an empty grid, set all places as null, which will stand for no good direction
+	flowField = new Array(gridWidth);
+	for (x = 0; x < gridWidth; x++) {
+		var arr = new Array(gridHeight);
+		for (y = 0; y < gridHeight; y++) {
+			arr[y] = null;
+		}
+		flowField[x] = arr;
+	}
+
+	//for each grid square
+	for (x = 0; x < gridWidth; x++) {
+		for (y = 0; y < gridHeight; y++) {
+
+			//Obstacles have no flow value
+			if (dijkstraGrid[x][y] == Number.MAX_VALUE) {
+				continue;
+			}
+
+			var pos = new Vector2(x, y);
+			var neighbours = allNeighboursOf(pos);
+
+			//Go through all neighbours and find the one with the lowest distance
+			var min = null;
+			var minDist = 0;
+			for (var i = 0; i < neighbours.length; i++) {
+				var n = neighbours[i];
+				var dist = dijkstraGrid[n.x][n.y] - dijkstraGrid[pos.x][pos.y];
+
+				if (dist < minDist) {
+					min = n;
+					minDist = dist;
+				}
+			}
+
+			//If we found a valid neighbour, point in its direction
+			if (min != null) {
+				flowField[x][y] = min.minus(pos).normalize();
+			}
+		}
+	}
+}
+{% endhighlight %}
 
 This gives a grid like follows:<br/>
 <img src="/images/flowfield.png" />
