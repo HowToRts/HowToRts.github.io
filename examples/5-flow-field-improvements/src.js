@@ -36,12 +36,9 @@ function startGame() {
 	for (var i = 0; i < 30; i++) {
 		var x = 1 + Math.floor(Math.random() * (gridWidth - 3));
 		var y = Math.floor(Math.random() * (gridHeight - 2));
-		//Place 4 obstacles in a square
 		obstacles.push(new Vector2(x, y));
-		obstacles.push(new Vector2(x, y + 1));
-		obstacles.push(new Vector2(x + 1, y));
-		obstacles.push(new Vector2(x + 1, y + 1));
 	}
+	obstacles.push(new Vector2(gridWidth - 5, gridHeight / 2));
 
 	generateDijkstraGrid();
 	generateFlowField();
