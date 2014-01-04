@@ -45,7 +45,7 @@ We will reuse our [dijkstra flood fill code from before], this generates the dis
 
 We then go through each grid square, look at all its neighbours (including diagonals), choose the one with the lowest distance-to-destination and set our grid square to have a vector in this direction. We do not set Vectors for impassable grid squares.
 
-{% highlight javascript %}
+{% highlight javascript tabsize=4 %}
 function generateFlowField() {
 	var x, y;
 
@@ -106,7 +106,7 @@ To follow the Flow Field we will implement a steering behaviour that directs the
 
 [Bilinear Interpolation]: http://en.wikipedia.org/wiki/Bilinear_interpolation
 
-{% highlight javascript %}
+{% highlight javascript tabsize=4 %}
 function steeringBehaviourFlowField(agent) {
 
 	//Work out the force to apply to us based on the flow field grid squares we are on.

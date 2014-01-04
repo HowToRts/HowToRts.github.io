@@ -8,12 +8,12 @@ date:   2013-12-31
 So we know how to get enemies to follow a path, now we change that path from being hard coded, into something that we can dynamically recalculate.
 
 First, we'll add a list of tower positions, these don't need anything more than a location, so we'll just re-use the Vector2 class.
-{% highlight javascript %}
+{% highlight javascript tabsize=4 %}
 var towers = new Array();
 {% endhighlight %}
 
 And we'll populate this with a bunch of randomly placed towers so we need to path around them:
-{% highlight javascript %}
+{% highlight javascript tabsize=4 %}
 //Called to start the game
 function startGame() {
 	//Create some initial randomly placed towers
@@ -72,7 +72,7 @@ Once this is completed, we have everything we need to know to directly compute a
 
 Our implementation of the Dijkstra fill follows:
 
-{% highlight javascript %}
+{% highlight javascript tabsize=4 %}
 function generateDijkstraGrid() {
 	//Generate an empty grid, set all places as weight null, which will stand for unvisited
 	dijkstraGrid = new Array(gridWidth);

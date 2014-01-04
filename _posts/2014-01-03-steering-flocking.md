@@ -28,7 +28,7 @@ Let's look at each of these behaviours individually first.
 
 Separation calculates a force to move away from all of our neighbours. We do this by calculating a force from them to us and scaling it so the force is greater the nearer they are.
 
-{% highlight javascript %}
+{% highlight javascript tabsize=4 %}
 function steeringBehaviourSeparation(agent) {
 	var totalForce = Vector2.zero;
 	var neighboursCount = 0;
@@ -68,7 +68,7 @@ Cohesion calculates a force that will bring us closer to our neighbours, so we m
 
 Cohesion calculates the average position of our neighbours and ourself, and steers us towards it
 
-{% highlight javascript %}
+{% highlight javascript tabsize=4 %}
 function steeringBehaviourCohesion(agent) {
 	//Start with just our position
 	var centerOfMass = agent.position;
@@ -102,7 +102,7 @@ function steeringBehaviourCohesion(agent) {
 
 Alignment calculates a force so that our direction is closer to our neighbours. It does this similar to cohesion, but by summing up the direction vectors (normalised velocities) of ourself and our neighbours and working out the average direction.
 
-{% highlight javascript %}
+{% highlight javascript tabsize=4 %}
 function steeringBehaviourAlignment(agent) {
 	var averageHeading = Vector2.zero;
 	var neighboursCount = 0;
@@ -143,7 +143,7 @@ The solution I've decided upon is to scale down the effect of cohesion. For our 
 
 To implement this and to combine our steering behaviours together, we change our main loop as follows
 
-{% highlight javascript %}
+{% highlight javascript tabsize=4 %}
 //called periodically to update the game
 //dt is the change of time since the last update (in seconds)
 function gameTick(dt) {

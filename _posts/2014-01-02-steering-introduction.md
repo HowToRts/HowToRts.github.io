@@ -34,7 +34,7 @@ We then have a method which applies some intelligence to combine the forces, whi
 So, lets gets started. We are going to have an entity and a destination, and we'll implement the seek behaviour.
 
 The definition of these look similar to before, which the addition of maxForce for setting our rate of acceleration
-{% highlight javascript %}
+{% highlight javascript tabsize=4 %}
 //Defines an agent that moves
 Agent = function (pos) {
 	this.position = pos;
@@ -50,7 +50,7 @@ var destination = new Vector2(gridWidth - 2, 1); //Top right
 {% endhighlight %}
 
 Our update loop is now mainly physics.
-{% highlight javascript %}
+{% highlight javascript tabsize=4 %}
 //called periodically to update the game
 //dt is the change of time since the last update (in seconds)
 function gameTick(dt) {
@@ -82,7 +82,7 @@ function gameTick(dt) {
 
 Our initial behaviour is seek, which means we calculate a force towards our destination. Implementation of this is simple.
 
-{% highlight javascript %}
+{% highlight javascript tabsize=4 %}
 function steeringBehaviourSeek(agent) {
 	//Desired change of location
 	var desired = destination.minus(agent.position);

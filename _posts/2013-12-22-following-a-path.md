@@ -12,12 +12,12 @@ As this series is mainly focusing on algorithms and datastructures, I'm going to
 ### Setup
 
 We'll just keep a list of alive enemies:
-{% highlight javascript %}
+{% highlight javascript tabsize=4 %}
 var enemies = new Array();
 {% endhighlight %}
 
 And we need an enemy class, with a location and some bits for movement
-{% highlight javascript %}
+{% highlight javascript tabsize=4 %}
 Enemy = function (position) {
 	this.position = position;
 
@@ -27,7 +27,7 @@ Enemy = function (position) {
 {% endhighlight %}
 
 We also need a path for the enemies to follow, they will start at the first point and move along the path to the last point.
-{% highlight javascript %}
+{% highlight javascript tabsize=4 %}
 var path = [
 	new Vector2(0, 3),
 	new Vector2(3, 3),
@@ -57,7 +57,7 @@ _**Note:** If your enemies may arrive at multiple points in a single tick, then 
 In this code, dt is the change of time variable, it contains how much time (in seconds) has passed since the last update.
 It will usually be 0.0166666s (1/60) as our game is running at 60 FPS
 
-{% highlight javascript %}
+{% highlight javascript tabsize=4 %}
 //foreach enemy
 for (var i = enemies.length - 1; i >= 0; i--) {
 	var e = enemies[i];
@@ -98,7 +98,7 @@ for (var i = enemies.length - 1; i >= 0; i--) {
 {% endhighlight %}
 
 We will also spawn enemies periodically, this is easy
-{% highlight javascript %}
+{% highlight javascript tabsize=4 %}
 //How many seconds between spawning each enemy
 var timeBetweenSpawns = 1;
 //Time until the next spawn (start 0 so we immediately spawn one)
