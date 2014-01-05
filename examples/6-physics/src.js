@@ -126,7 +126,7 @@ function gameTick(dt) {
 		var alg = steeringBehaviourAlignment(agent);
 		var coh = steeringBehaviourCohesion(agent);
 
-		agent.forceToApply = ff.Add(sep.Multiply(1)).Add(alg.Multiply(0.2)).Add(coh.Multiply(0.1));
+		agent.forceToApply = ff.Add(sep.Multiply(1)).Add(alg.Multiply(0.9)).Add(coh.Multiply(0.05));
 
 		var lengthSquared = agent.forceToApply.LengthSquared();
 		if (lengthSquared > agent.maxForceSquared) {
