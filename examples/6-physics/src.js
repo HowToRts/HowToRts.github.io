@@ -23,7 +23,7 @@ Agent = function (pos) {
 	this.radius = 0.4;
 	this.minSeparation = 0.8; // We'll move away from anyone nearer than this
 
-	this.maxCohesion = 3.5; //We'll move closer to anyone within this bound
+	this.maxCohesion = 2; //We'll move closer to anyone within this bound
 
 	this.maxForceSquared = this.maxForce * this.maxForce;
 	this.maxSpeedSquared = this.maxSpeed * this.maxSpeed;
@@ -33,8 +33,8 @@ Agent = function (pos) {
 	var bodyDef = new B2BodyDef();
 
 	fixDef.density = 10.0;
-	fixDef.friction = 0.5;
-	fixDef.restitution = 0.2;
+	fixDef.friction = 0.0;
+	fixDef.restitution = 0.0;
 	fixDef.shape = new B2CircleShape(this.radius * 0.5);
 
 	bodyDef.type = B2Body.b2_dynamicBody;
