@@ -282,8 +282,7 @@ function generateFlowField() {
 
 			//If we found a valid neighbour, point in its direction
 			if (min != null) {
-				var v = min.Copy();
-				v.Subtract(pos);
+				var v = min.Copy().Subtract(pos);
 				v.Normalize();
 				flowField[x][y] = v;
 			}
