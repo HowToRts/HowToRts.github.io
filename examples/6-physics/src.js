@@ -56,12 +56,27 @@ var destination = new B2Vec2(gridWidth - 2, gridHeight / 2); //middle right
 function startGame() {
 	for (var yPos = 1; yPos < gridHeight - 1; yPos++) {
 		agents.push(new Agent(new B2Vec2(0, yPos)));
+		agents.push(new Agent(new B2Vec2(1, yPos)));
+		agents.push(new Agent(new B2Vec2(2, yPos)));
 	}
+
+	//for (var i = 0; i < gridHeight; i++) {
+	//	if (i == gridHeight / 2 || i == gridHeight / 2 - 1) {
+	//		continue;
+	//	}
+	//	obstacles.push(new B2Vec2(8, i));
+	//	obstacles.push(new B2Vec2(7, i));
+	//}
+
+
 	for (var i = 0; i < 30; i++) {
 		var x = 1 + Math.floor(Math.random() * (gridWidth - 3));
 		var y = Math.floor(Math.random() * (gridHeight - 2));
-		var pos = new B2Vec2(x, y);
-		obstacles.push(pos);
+		obstacles.push(new B2Vec2(x, y));
+	}
+
+	for (var i = 0; i < obstacles.length; i++) {
+		var pos = obstacles[i];
 
 		//Create a physics body for the agent
 		var fixDef = new B2FixtureDef();
