@@ -41,6 +41,7 @@ var agentBitmaps = {};
 
 var targetShape;
 var obstaclesShape;
+var weightsAndFieldShape;
 
 function loadingComplete() {
 	startGame();
@@ -76,6 +77,22 @@ function loadingComplete() {
 	}
 	stage.addChild(obstaclesShape);
 
+	weightsAndFieldShape = new createjs.Container();
+	stage.addChild(weightsAndFieldShape);
+
+	updateWeightsAndFieldVisuals();
+
+	createjs.Ticker.setFPS(60);
+	createjs.Ticker.addEventListener("tick", function () {
+		gameTick(createjs.Ticker.getInterval() / 1000);
+		rendererTick();
+		stage.update();
+	});
+}
+
+function updateWeightsAndFieldVisuals() {
+	weightsAndFieldShape.removeAllChildren();
+
 	//Draw the weights
 	for (x = 0; x < gridWidth; x++) {
 		for (y = 0; y < gridHeight; y++) {
@@ -88,7 +105,7 @@ function loadingComplete() {
 			text.y = (y + 0.5) * gridPx;
 			text.textBaseline = 'middle';
 			text.textAlign = 'center';
-			stage.addChild(text);
+			weightsAndFieldShape.addChild(text);
 		}
 	}
 
@@ -106,18 +123,8 @@ function loadingComplete() {
 			}
 		}
 	}
-	stage.addChild(flowFieldShape);
-
-
-
-	createjs.Ticker.setFPS(60);
-	createjs.Ticker.addEventListener("tick", function () {
-		gameTick(createjs.Ticker.getInterval() / 1000);
-		rendererTick();
-		stage.update();
-	});
+	weightsAndFieldShape.addChild(flowFieldShape);
 }
-
 
 function rendererTick() {
 

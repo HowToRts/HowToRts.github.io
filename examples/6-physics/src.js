@@ -100,6 +100,10 @@ function startGame() {
 	stage.addEventListener('stagemouseup', function (ev) {
 		destination.x = ev.stageX / gridPx - 0.5;
 		destination.y = ev.stageY / gridPx - 0.5;
+		generateDijkstraGrid();
+		generateFlowField();
+
+		updateWeightsAndFieldVisuals(); //Call in to the renderer to redraw the weights and flow field
 	});
 }
 
