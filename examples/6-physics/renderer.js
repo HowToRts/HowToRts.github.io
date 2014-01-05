@@ -139,8 +139,8 @@ function rendererTick() {
 			stage.addChild(bitmap);
 		}
 
-		bitmap.x = gridPx * (e.position.x + 0.5);
-		bitmap.y = gridPx * (e.position.y + 0.5);
+		bitmap.x = gridPx * (e.position().x + 0.5);
+		bitmap.y = gridPx * (e.position().y + 0.5);
 		bitmap.rotation = e.rotation;
 	}
 }

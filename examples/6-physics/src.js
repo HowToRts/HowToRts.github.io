@@ -10,12 +10,12 @@ var gridHeight = gridHeightPx / gridPx;
 var agents = new Array();
 var obstacles = new Array();
 
+//The physics world
+var world = new B2World(B2Vec2.Zero, true);
+
 //Defines an agent that moves
 Agent = function (pos) {
-	this.position = pos;
 	this.rotation = 0;
-
-	this.velocity = new B2Vec2();
 
 	this.maxForce = 20; //rate of acceleration
 	this.maxSpeed = 4; //grid squares / second
@@ -27,6 +27,27 @@ Agent = function (pos) {
 
 	this.maxForceSquared = this.maxForce * this.maxForce;
 	this.maxSpeedSquared = this.maxSpeed * this.maxSpeed;
+
+	//Create physics objects for the agent
+	var fixDef = new B2FixtureDef();
+	var bodyDef = new B2BodyDef();
+
+	fixDef.density = 1.0;
+	fixDef.friction = 0.5;
+	fixDef.restitution = 0.2;
+	fixDef.shape = new B2CircleShape(this.radius);
+
+	bodyDef.type = B2Body.b2_dynamicBody;
+	bodyDef.position.SetV(pos);
+
+	this.body = world.CreateBody(bodyDef);
+	this.fixture = this.body.CreateFixture(fixDef);
+};
+Agent.prototype.position = function () {
+	return this.body.GetPosition();
+};
+Agent.prototype.velocity = function () {
+	return this.body.GetLinearVelocity();
 };
 
 var destination = new B2Vec2(gridWidth - 2, gridHeight / 2); //middle right
@@ -81,20 +102,14 @@ function gameTick(dt) {
 		agent = agents[i];
 
 		//Apply the force
-		agent.velocity.Add(agent.forceToApply.Multiply(dt));
+		agent.body.ApplyImpulse(agent.forceToApply.Multiply(dt), agent.position());
 
-		//Cap speed as required
-		var speedSquared = agent.velocity.LengthSquared();
-		if (speedSquared > agent.maxSpeedSquared) {
-			agent.velocity.Multiply(agent.maxSpeed / Math.sqrt(speedSquared));
-		}
-
-		//Calculate our new movement angle
-		agent.rotation = agent.velocity.Angle();
-
-		//Move a bit
-		agent.position.Add(agent.velocity.Copy().Multiply(dt));
+		//Calculate our new movement angle TODO: Should probably be done after running step
+		agent.rotation = agent.velocity().Angle();
 	}
+
+	world.Step(dt, 10, 10);
+	world.ClearForces();
 }
 
 function steeringBehaviourFlowField(agent) {
@@ -104,7 +119,7 @@ function steeringBehaviourFlowField(agent) {
 	// http://en.wikipedia.org/wiki/Bilinear_interpolation#Nonlinear
 
 	//Top left Coordinate of the 4
-	var floor = agent.position.Copy().Floor();
+	var floor = agent.position().Copy().Floor();
 
 	//The 4 weights we'll interpolate, see http://en.wikipedia.org/wiki/File:Bilininterp.png for the coordinates
 	var f00 = (isValid(floor.x, floor.y) ? flowField[floor.x][floor.y] : B2Vec2.Zero).Copy();
@@ -113,13 +128,13 @@ function steeringBehaviourFlowField(agent) {
 	var f11 = (isValid(floor.x + 1, floor.y + 1) ? flowField[floor.x + 1][floor.y + 1] : B2Vec2.Zero).Copy();
 
 	//Do the x interpolations
-	var xWeight = agent.position.x - floor.x;
+	var xWeight = agent.position().x - floor.x;
 
 	var top = f00.Multiply(1 - xWeight).Add(f10.Multiply(xWeight));
 	var bottom = f01.Multiply(1 - xWeight).Add(f11.Multiply(xWeight));
 
 	//Do the y interpolation
-	var yWeight = agent.position.y - floor.y;
+	var yWeight = agent.position().y - floor.y;
 
 	//This is now the direction we want to be travelling in (needs to be normalized)
 	var desiredDirection = top.Multiply(1 - yWeight).Add(bottom.Multiply(yWeight));
@@ -136,12 +151,12 @@ function steeringBehaviourFlowField(agent) {
 function steeringBehaviourLowestCost(agent) {
 
 	//Do nothing if the agent isn't moving
-	if (agent.velocity.LengthSquared() == 0) {
+	if (agent.velocity().LengthSquared() == 0) {
 		return new B2Vec2();
 	}
 
 	//Find our 4 closest neighbours
-	var floor = agent.position.Copy().Floor(); //Top left Coordinate of the 4
+	var floor = agent.position().Copy().Floor(); //Top left Coordinate of the 4
 	var f00 = isValid(floor.x, floor.y) ? dijkstraGrid[floor.x][floor.y] : Number.MAX_VALUE;
 	var f01 = isValid(floor.x, floor.y + 1) ? dijkstraGrid[floor.x][floor.y + 1] : Number.MAX_VALUE;
 	var f10 = isValid(floor.x + 1, floor.y) ? dijkstraGrid[floor.x + 1][floor.y] : Number.MAX_VALUE;
@@ -165,13 +180,13 @@ function steeringBehaviourLowestCost(agent) {
 	}
 
 	//Tie-break by choosing the one we are most aligned with
-	var currentDirection = agent.velocity.Copy();
+	var currentDirection = agent.velocity().Copy();
 	currentDirection.Normalize();
 
 	var desiredDirection;
 	minVal = Number.MAX_VALUE;
 	for (var i = 0; i < minCoord.length; i++) {
-		minCoord[i].Subtract(agent.position).Normalize();
+		minCoord[i].Subtract(agent.position()).Normalize();
 		var directionTo = minCoord[i];
 		var lengthSquared = directionTo.Copy().Subtract(currentDirection).LengthSquared();
 		if (lengthSquared < minVal) {
@@ -189,7 +204,7 @@ function steerTowards(agent, desiredDirection) {
 	var desiredVelocity = desiredDirection.Multiply(agent.maxSpeed);
 
 	//The velocity change we want
-	var velocityChange = desiredVelocity.Subtract(agent.velocity);
+	var velocityChange = desiredVelocity.Subtract(agent.velocity());
 	//Convert to a force
 	return velocityChange.Multiply(agent.maxForce / agent.maxSpeed);
 }
