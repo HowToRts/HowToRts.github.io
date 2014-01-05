@@ -31,3 +31,16 @@ B2Vec2.prototype.Floor = function () {
 B2Vec2.prototype.Angle = function () {
 	return Math.atan2(this.x, -this.y) * 180 / Math.PI;
 };
+
+B2Vec2.prototype.DistanceTo = function (target) {
+	return this.Copy().Subtract(target).Length();
+};
+
+
+B2Vec2.prototype.Divide = function (a) {
+	if (a === undefined) a = 0;
+	this.x /= a;
+	this.y /= a;
+
+	return this;
+};
