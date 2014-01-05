@@ -32,10 +32,10 @@ Agent = function (pos) {
 	var fixDef = new B2FixtureDef();
 	var bodyDef = new B2BodyDef();
 
-	fixDef.density = 1.0;
+	fixDef.density = 10.0;
 	fixDef.friction = 0.5;
 	fixDef.restitution = 0.2;
-	fixDef.shape = new B2CircleShape(this.radius);
+	fixDef.shape = new B2CircleShape(this.radius * 0.5);
 
 	bodyDef.type = B2Body.b2_dynamicBody;
 	bodyDef.position.SetV(pos);
