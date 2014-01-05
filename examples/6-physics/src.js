@@ -28,7 +28,7 @@ Agent = function (pos) {
 	this.maxForceSquared = this.maxForce * this.maxForce;
 	this.maxSpeedSquared = this.maxSpeed * this.maxSpeed;
 
-	//Create physics objects for the agent
+	//Create a physics body for the agent
 	var fixDef = new B2FixtureDef();
 	var bodyDef = new B2BodyDef();
 
@@ -60,9 +60,24 @@ function startGame() {
 	for (var i = 0; i < 30; i++) {
 		var x = 1 + Math.floor(Math.random() * (gridWidth - 3));
 		var y = Math.floor(Math.random() * (gridHeight - 2));
-		obstacles.push(new B2Vec2(x, y));
+		var pos = new B2Vec2(x, y);
+		obstacles.push(pos);
+
+		//Create a physics body for the agent
+		var fixDef = new B2FixtureDef();
+		var bodyDef = new B2BodyDef();
+
+		fixDef.density = 1.0;
+		fixDef.friction = 0.5;
+		fixDef.restitution = 0.2;
+		fixDef.shape = new B2PolygonShape();
+
+		bodyDef.type = B2Body.b2_staticBody;
+		fixDef.shape.SetAsBox(0.5, 0.5);
+		bodyDef.position.SetV(pos);
+
+		world.CreateBody(bodyDef).CreateFixture(fixDef);
 	}
-	obstacles.push(new B2Vec2(gridWidth - 5, gridHeight / 2));
 
 	generateDijkstraGrid();
 	generateFlowField();
