@@ -99,6 +99,9 @@ function gameTick(dt) {
 }
 
 function steeringBehaviourSeek(agent, dest) {
+	if (dest.x == agent.position.x && dest.y == agent.position.y) {
+		return Vector2.zero;
+	}
 
 	//Desired change of location
 	var desired = dest.minus(agent.position);
