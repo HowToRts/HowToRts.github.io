@@ -4,7 +4,7 @@ title: Welcome!
 ---
 ### Welcome to How to RTS
 
-I've been recently interested in RTS Games (Planetary Annihilation and SupCom in particular), so I plan to slowly build up an RTS engine of my own. Along the way I'll do some posts and miniprojects explaining and showing the various things involved.
+I've been recently interested in RTS Games (Planetary Annihilation and Supreme Commander 2 in particular), so I plan to slowly build up an RTS engine of my own. Along the way I'll do some posts and miniprojects explaining and showing the various things involved.
 
 I'll be posting mini examples as runnable javascript apps to explain how things work.
 
