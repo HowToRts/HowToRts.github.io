@@ -295,18 +295,24 @@ function steerTowards(agent, desiredDirection) {
 	return velocityChange.Multiply(agent.maxForce / agent.maxSpeed);
 }
 
-var dijkstraGrid;
-var flowField;
+var dijkstraGrid = new Array(gridWidth);
+for (var x = 0; x < gridWidth; x++) {
+	dijkstraGrid[x] = new Array(gridHeight);
+}
+var flowField = new Array(gridWidth);
+for (x = 0; x < gridWidth; x++) {
+	flowField[x] = new Array(gridHeight);
+}
+
 
 function generateDijkstraGrid() {
-	//Generate an empty grid, set all places as weight null, which will stand for unvisited
-	dijkstraGrid = new Array(gridWidth);
+	//Generate an empty grid
+	//set all places as weight null, which will stand for unvisited
 	for (var x = 0; x < gridWidth; x++) {
-		var arr = new Array(gridHeight);
+		var arr = dijkstraGrid[x];
 		for (var y = 0; y < gridHeight; y++) {
 			arr[y] = null;
 		}
-		dijkstraGrid[x] = arr;
 	}
 
 	//Set all places where obstacles are as being weight MAXINT, which will stand for not able to go here
@@ -347,13 +353,11 @@ function generateFlowField() {
 	var x, y;
 
 	//Generate an empty grid, set all places as Vector2.zero, which will stand for no good direction
-	flowField = new Array(gridWidth);
 	for (x = 0; x < gridWidth; x++) {
-		var arr = new Array(gridHeight);
+		var arr = flowField[x];
 		for (y = 0; y < gridHeight; y++) {
 			arr[y] = B2Vec2.Zero;
 		}
-		flowField[x] = arr;
 	}
 
 	//for each grid square
