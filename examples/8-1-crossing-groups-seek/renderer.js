@@ -63,15 +63,55 @@ function loadingComplete() {
 	}
 	stage.addChild(obstaclesShape);
 
+	weightsAndFieldShape = new createjs.Container();
+	stage.addChild(weightsAndFieldShape);
+
 	createjs.Ticker.setFPS(60);
 	createjs.Ticker.addEventListener("tick", function () {
 		gameTick(createjs.Ticker.getInterval() / 1000);
+		updateWeightsAndFieldVisuals();
 		rendererTick();
 		stage.update();
 	});
 }
 
+function updateWeightsAndFieldVisuals() {
+	return;
+	var x, y;
+	weightsAndFieldShape.removeAllChildren();
 
+	//Draw the weights
+	for (x = 0; x < gridWidth; x++) {
+		for (y = 0; y < gridHeight; y++) {
+			var d = ccPotentialField[x][y];
+			if (d == 0 || d === Number.POSITIVE_INFINITY) {
+				continue;
+			}
+			var text = new createjs.Text('' + (d | 0), '12px Arial', '#000');
+			text.x = (x + 0.5) * gridPx;
+			text.y = (y + 0.5) * gridPx;
+			text.textBaseline = 'middle';
+			text.textAlign = 'center';
+			weightsAndFieldShape.addChild(text);
+		}
+	}
+
+	//Visualise the flow field
+	var flowFieldShape = new createjs.Shape();
+	flowFieldShape.x = gridPx / 2 + 0.5;
+	flowFieldShape.y = gridPx / 2 + 0.5;
+	flowFieldShape.graphics.beginStroke('#00f');
+	for (x = 0; x < gridWidth; x++) {
+		for (y = 0; y < gridWidth; y++) {
+			if (ccFlowField[x][y]) {
+				var f = ccFlowField[x][y];
+				flowFieldShape.graphics.moveTo(x * gridPx, y * gridPx);
+				flowFieldShape.graphics.lineTo((x + 0.5 * f.x) * gridPx, (y + 0.5 * f.y) * gridPx);
+			}
+		}
+	}
+	weightsAndFieldShape.addChild(flowFieldShape);
+}
 
 var agentId = 1;
 var agentBitmaps = {};
