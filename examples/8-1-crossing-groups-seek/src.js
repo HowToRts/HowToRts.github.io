@@ -107,11 +107,11 @@ function startGame() {
 	}
 
 	stage.addEventListener('stagemouseup', function (ev) {
-		destination[0].x = ev.stageX / gridPx - 0.5;
-		destination[0].y = ev.stageY / gridPx - 0.5;
+		destinations[0].x = ev.stageX / gridPx - 0.5;
+		destinations[0].y = ev.stageY / gridPx - 0.5;
 
-		destination[1].x = (gridWidthPx - ev.stageX) / gridPx - 0.5;
-		destination[1].y = (gridHeightPx - ev.stageY) / gridPx - 0.5;
+		destinations[1].x = (gridWidthPx - ev.stageX) / gridPx - 0.5;
+		destinations[1].y = (gridHeightPx - ev.stageY) / gridPx - 0.5;
 	});
 }
 
@@ -214,7 +214,7 @@ function steeringBehaviourCohesion(agent) {
 
 	for (var i = 0; i < agents.length; i++) {
 		var a = agents[i];
-		if (a != agent) {
+		if (a != agent && a.group == agent.group) {
 			var distance = agent.position().DistanceTo(a.position());
 			if (distance < agent.maxCohesion) {
 				//sum up the position of our neighbours
@@ -244,7 +244,7 @@ function steeringBehaviourAlignment(agent) {
 		var a = agents[i];
 		var distance = agent.position().DistanceTo(a.position());
 		//That are within the max distance and are moving
-		if (distance < agent.maxCohesion && a.velocity().Length() > 0) {
+		if (distance < agent.maxCohesion && a.velocity().Length() > 0 && a.group == agent.group) {
 			//Sum up our headings
 			var head = a.velocity().Copy();
 			head.Normalize();
