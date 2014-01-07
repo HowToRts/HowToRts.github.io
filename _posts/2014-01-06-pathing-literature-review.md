@@ -37,6 +37,32 @@ AMD did this a few years back, I'm not sure their implementation is pure Continu
 
 There is also another implementation, this one has code available on github: <https://helmutduregger.wordpress.com/2011/11/21/simulation-of-large-and-dense-crowds-on-the-gpu-using-opencl/>
 
+### StarCraft II pathing
+
+If you have a gdcvault subscription, theres a video on how StarCraft II does its pathing. <http://gdcvault.com/play/1014514/AI-Navigation-It-s-Not>
+
+They talk about their steering behaviours, which is really awesome.
+
+Some take aways:
+
+- They make a triangle navmesh (via delaunay triangulation) of their map and use A* on it for pathing.
+- They then use steering and collision to handle when they get close to other units
+- No dynamic memory is used in their their pathing engine
+- Their Steering behaviours include
+  - Following
+  - Flocking
+  - Grouping
+  - Separation
+  - Avoidance
+  - Arrival
+  - (Maybe more)
+ - Avoidance was hard to get right. 
+  - They ignore people moving in your general direction, people who are idle (can push out of way).
+  - Look at what is infront of you and aim at the gap closest to the center. 
+  - Read minds of people walking towards you and turn in the same direction (so you go the opposite way)
+  - Avoidance lets units walk around static groups of units
+ - Collision. Lots of rules around who pushes who.
+
 ### Notes on PA Path finding
 
 I messed around with the Planetary Annihilation path finding. I'm not 100% sure they are using a Continuum Crowds approach as I've seen some behaviour that CC should prevent. Also the article in Game AI Pro talks about pre-generating and caching flow field tiles, which (to my knowledge) would not be possible/useful in Continuum Crowds as you need to regenerate the Flow Field every update to include updated discomfort values (although this Flow Field could probably be used over a few frames). I still don't fully have my head around Continuum Crowds yet, so I may be wrong.
