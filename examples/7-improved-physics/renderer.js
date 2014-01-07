@@ -20,9 +20,6 @@ function createCenteredBitmap(filename) {
 
 var towerBitmaps = [];
 
-var agentId = 1;
-var agentBitmaps = {};
-
 var targetShape;
 var obstaclesShape;
 var weightsAndFieldShape;
@@ -110,6 +107,13 @@ function updateWeightsAndFieldVisuals() {
 	weightsAndFieldShape.addChild(flowFieldShape);
 }
 
+
+
+var agentId = 1;
+var agentBitmaps = {};
+var agentForceLines = {};
+
+//TODO: Can share the graphics object here apparently http://www.createjs.com/Docs/EaselJS/classes/Shape.html
 function createAgentShape(agent) {
 	var shape = new createjs.Shape();
 	shape.graphics.beginStroke('#000');
@@ -120,7 +124,6 @@ function createAgentShape(agent) {
 
 	return shape;
 }
-
 function rendererTick() {
 
 	targetShape.x = (destination.x + 0.5) * gridPx;
@@ -136,13 +139,22 @@ function rendererTick() {
 		}
 
 		var bitmap = agentBitmaps[e._id];
+		var forceLine = agentForceLines[e._id];
 		if (!bitmap) {
 			bitmap = agentBitmaps[e._id] = createAgentShape(e);
+			forceLine = agentForceLines[e._id] = new createjs.Shape();
+
 			stage.addChild(bitmap);
+			stage.addChild(forceLine);
 		}
 
 		bitmap.x = gridPx * (e.position().x + 0.5);
 		bitmap.y = gridPx * (e.position().y + 0.5);
 		bitmap.rotation = e.rotation;
+
+		forceLine.x = bitmap.x;
+		forceLine.y = bitmap.y;
+		var force = e.forceToApply.Copy().Multiply(gridPx * 2);
+		forceLine.graphics.clear().beginStroke('#f00').moveTo(0, 0).lineTo(force.x, force.y);
 	}
 }
