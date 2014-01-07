@@ -8,23 +8,7 @@ function init() {
 	stage = new createjs.Stage('canvas');
 	createjs.DisplayObject.suppressCrossDomainErrors = true;
 
-	var queue = new createjs.LoadQueue(false);
-	queue.addEventListener('complete', loadingComplete);
-	queue.addEventListener('fileload', function (event) {
-
-		//remove path and extension
-		var filename = event.item.id.substring('../images/'.length);
-		filename = filename.substr(0, filename.lastIndexOf('.'));
-
-		gfxResources[filename] = event.result;
-	});
-
-	queue.loadFile('../images/tower.png');
-	queue.loadFile('../images/turret.png');
-
-	queue.loadFile('../images/agent.png');
-
-	queue.load();
+	loadingComplete();
 }
 
 function createCenteredBitmap(filename) {
@@ -126,6 +110,17 @@ function updateWeightsAndFieldVisuals() {
 	weightsAndFieldShape.addChild(flowFieldShape);
 }
 
+function createAgentShape(agent) {
+	var shape = new createjs.Shape();
+	shape.graphics.beginStroke('#000');
+	shape.graphics.drawCircle(0, 0, agent.radius * gridPx);
+
+	shape.graphics.moveTo(0, 0);
+	shape.graphics.lineTo(0, -agent.radius * gridPx);
+
+	return shape;
+}
+
 function rendererTick() {
 
 	targetShape.x = (destination.x + 0.5) * gridPx;
@@ -142,7 +137,7 @@ function rendererTick() {
 
 		var bitmap = agentBitmaps[e._id];
 		if (!bitmap) {
-			bitmap = agentBitmaps[e._id] = createCenteredBitmap('agent');
+			bitmap = agentBitmaps[e._id] = createAgentShape(e);
 			stage.addChild(bitmap);
 		}
 
