@@ -152,9 +152,15 @@ function rendererTick() {
 		bitmap.y = gridPx * (e.position().y + 0.5);
 		bitmap.rotation = e.rotation;
 
-		forceLine.x = bitmap.x;
-		forceLine.y = bitmap.y;
-		var force = e.forceToApply.Copy().Multiply(gridPx * 2);
-		forceLine.graphics.clear().beginStroke('#f00').moveTo(0, 0).lineTo(force.x, force.y);
+		if (e.forces) {
+			forceLine.x = bitmap.x;
+			forceLine.y = bitmap.y;
+			for (var j = 0; j < e.forces.length; j++) {
+				e.forces[j].Multiply(4);
+			}
+			forceLine.graphics.clear().beginStroke('#f00').moveTo(0, 0).lineTo(e.forces[0].x, e.forces[0].y);
+			forceLine.graphics.beginStroke('#0f0').moveTo(0, 0).lineTo(e.forces[1].x, e.forces[1].y);
+			forceLine.graphics.beginStroke('#00f').moveTo(0, 0).lineTo(e.forces[2].x, e.forces[2].y);
+		}
 	}
 }

@@ -38,6 +38,7 @@ Agent = function (pos) {
 	fixDef.shape = new B2CircleShape(this.radius);
 
 	bodyDef.type = B2Body.b2_dynamicBody;
+	//bodyDef.linearDamping = 0.1;
 	bodyDef.position.SetV(pos);
 
 	this.body = world.CreateBody(bodyDef);
@@ -126,7 +127,9 @@ function gameTick(dt) {
 		var alg = steeringBehaviourAlignment(agent);
 		var coh = steeringBehaviourCohesion(agent);
 
-		agent.forceToApply = ff.Add(sep.Multiply(1)).Add(alg.Multiply(0.9)).Add(coh.Multiply(0.05));
+		//For visually debugging forces agent.forces = [ff.Copy(), sep.Copy(), alg.Copy(), coh.Copy()];
+
+		agent.forceToApply = ff.Add(sep.Multiply(1.2)).Add(alg.Multiply(0.3)).Add(coh.Multiply(0.05));
 
 		var lengthSquared = agent.forceToApply.LengthSquared();
 		if (lengthSquared > agent.maxForceSquared) {
@@ -215,7 +218,13 @@ function steeringBehaviourSeparation(agent) {
 			if (distance < agent.minSeparation && distance > 0) {
 				//Vector to other agent
 				var pushForce = agent.position().Copy().Subtract(a.position());
-				totalForce.Add(pushForce.Divide(agent.radius));
+				var length = pushForce.Normalize(); //Normalize returns the original length
+				var r = (agent.radius + a.radius);
+
+				totalForce.Add(pushForce.Multiply(1 - ((length - r) / (agent.minSeparation - r))));//agent.minSeparation)));
+				//totalForce.Add(pushForce.Multiply(1 - (length / agent.minSeparation)));
+				//totalForce.Add(pushForce.Divide(agent.radius));
+
 				neighboursCount++;
 			}
 		}
@@ -230,8 +239,8 @@ function steeringBehaviourSeparation(agent) {
 
 function steeringBehaviourCohesion(agent) {
 	//Start with just our position
-	var centerOfMass = agent.position().Copy();
-	var neighboursCount = 1;
+	var centerOfMass = new B2Vec2()//agent.position().Copy();
+	var neighboursCount = 0;
 
 	for (var i = 0; i < agents.length; i++) {
 		var a = agents[i];
@@ -245,7 +254,7 @@ function steeringBehaviourCohesion(agent) {
 		}
 	}
 
-	if (neighboursCount == 1) {
+	if (neighboursCount == 0) {
 		return new B2Vec2();
 	}
 
