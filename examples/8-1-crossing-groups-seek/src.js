@@ -366,9 +366,9 @@ for (var x = 0; x < gridWidth; x++) {
 }
 
 var ccFlowField = new Array(gridWidth);
-for (x = 0; x < gridWidth; x++) {
+for (var x = 0; x < gridWidth; x++) {
 	var arr = ccFlowField[x] = new Array(gridHeight);
-	for (y = 0; y < gridHeight; y++) {
+	for (var y = 0; y < gridHeight; y++) {
 		arr[y] = new B2Vec2();
 	}
 }
@@ -392,7 +392,7 @@ function updateContinuumCrowdsData() {
 		ccPotentialFieldEikonalFill(destinations[group]);
 		//Compute the gradient
 		//ccCalculatePotentialFieldGradient();
-		ccGenerateFlowField();
+		ccGenerateFlowField(); //TODO: This does not use the way of calculating described in the paper (I think)
 
 		//(use these for steering later)
 		for (var i = agents.length - 1; i >= 0; i--) {
@@ -431,13 +431,12 @@ function ccCalculateDensityAndAverageSpeed() {
 		var agent = agents[i];
 
 		//Add their density onto the density field like bilinear filtering
-		//This isn't the same as their formula, will need investigating
+		//TODO: This isn't the same as the paper formula, will need investigating
 
 		var floor = agent.position().Copy().Floor();
 
 		var xWeight = agent.position().x - floor.x;
 		var yWeight = agent.position().y - floor.y;
-
 
 		//top left
 		if (isValid(floor.x, floor.y)) {
@@ -554,10 +553,23 @@ function ccClearPotentialField() {
 	}
 }
 
+
+var ccEikonalVisited = new Array(gridWidth);
+for (x = 0; x < gridWidth; x++) {
+	ccEikonalVisited[x] = new Array(gridHeight);
+}
+
 function ccPotentialFieldEikonalFill(destination) {
 	//Do a dijkstra style fill out from the destination.
 	//We need to do this properly with priority lists and stuff as we will be using the cost field to go between cells
-	
+
+	for (var x = 0; x < gridWidth; x++) {
+		var arr = ccEikonalVisited[x];
+		for (var y = 0; y < gridHeight; y++) {
+			arr[y] = false;
+		}
+	}
+
 	//TODO: The PriorityQueue we are using is probably slow. Check the jsperf:
 	// http://jsperf.com/js-priority-queue-queue-dequeue
 	// https://github.com/adamhooper/js-priority-queue
@@ -566,24 +578,29 @@ function ccPotentialFieldEikonalFill(destination) {
 	destination = destination.Copy();
 
 	var candidates = new PriorityQueue({
-		comparator: function (a, b) { return b.ccCost - a.ccCost; }
+		comparator: function (a, b) { return a.ccCost - b.ccCost; }
 	});
 
 	destination.ccCost = 0;
 	candidates.queue(destination);
 
 	var candidatesCount = 0;
+	var failedCount = 0;
+
+	//debugger;
 
 	while (candidates.length > 0) {
 		candidatesCount++;
 		var at = candidates.dequeue();
 
+		//console.log('at ' + at.x + ', ' + at.y + ' @ ' + at.ccCost);
+
 		//We've got a better path
-		if (ccPotentialField[at.x][at.y] > at.ccCost) {
+		if (ccPotentialField[at.x][at.y] >= at.ccCost && !ccEikonalVisited[at.x][at.y]) {
+			//console.log(ccPotentialField[at.x][at.y] + ' >= ' + at.ccCost);
 
 			ccPotentialField[at.x][at.y] = at.ccCost;
-
-			//TODO: do we always visit infinities or sometimes ones we are better than
+			ccEikonalVisited[at.x][at.y] = true;
 
 			for (var i = 0; i < 4; i++) {
 				var dir = directionVectors[i];
@@ -598,16 +615,22 @@ function ccPotentialFieldEikonalFill(destination) {
 
 					//If we present a better path, overwrite the cost and queue up going to that cell
 					if (toCost < ccPotentialField[toX][toY]) {
+						//console.log('Queueing ' + toX + ', ' + toY + ' @ ' + toCost);
+						ccPotentialField[toX][toY] = toCost;
+						ccEikonalVisited[at.x][at.y] = false;
+
 						var toVec = at.Copy().Add(dir);
 						toVec.ccCost = toCost;
 						candidates.queue(toVec);
 					}
 				}
 			}
+		} else {
+			failedCount++;
 		}
 	}
 
-	console.log(candidatesCount + ' ' + (gridWidth * gridHeight));
+	//console.log(candidatesCount + ' - ' + failedCount + ' ' + (gridWidth * gridHeight));
 }
 
 function ccGenerateFlowField() {
