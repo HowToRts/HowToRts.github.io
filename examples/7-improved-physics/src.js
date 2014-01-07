@@ -20,7 +20,7 @@ Agent = function (pos) {
 	this.maxForce = 20; //rate of acceleration
 	this.maxSpeed = 4; //grid squares / second
 
-	this.radius = 0.4;
+	this.radius = 0.23;
 	this.minSeparation = 0.8; // We'll move away from anyone nearer than this
 
 	this.maxCohesion = 2; //We'll move closer to anyone within this bound
@@ -32,10 +32,10 @@ Agent = function (pos) {
 	var fixDef = new B2FixtureDef();
 	var bodyDef = new B2BodyDef();
 
-	fixDef.density = 10.0;
+	fixDef.density = 20.0;
 	fixDef.friction = 0.0;
 	fixDef.restitution = 0.0;
-	fixDef.shape = new B2CircleShape(this.radius * 0.5);
+	fixDef.shape = new B2CircleShape(this.radius);
 
 	bodyDef.type = B2Body.b2_dynamicBody;
 	bodyDef.position.SetV(pos);
@@ -86,9 +86,9 @@ function startGame() {
 		fixDef.friction = 0.5;
 		fixDef.restitution = 0.2;
 		fixDef.shape = new B2PolygonShape();
+		fixDef.shape.SetAsBox(0.5, 0.5);
 
 		bodyDef.type = B2Body.b2_staticBody;
-		fixDef.shape.SetAsBox(0.5, 0.5);
 		bodyDef.position.SetV(pos);
 
 		world.CreateBody(bodyDef).CreateFixture(fixDef);
