@@ -72,13 +72,14 @@ function startGame() {
 		agents.push(new Agent(new B2Vec2(gridWidth - 2, yPos), 1));
 		agents.push(new Agent(new B2Vec2(gridWidth - 3, yPos), 1));
 	}
-
-	for (var i = 0; i < gridHeight; i++) {
-		if (i >= gridHeight / 2 - 2 && i < gridHeight / 2 + 2) {
-			continue;
-		}
-		for (var y = 6; y < gridWidth - 6; y++) {
-			obstacles.push(new B2Vec2(y, i));
+	if (document.URL.indexOf('noobstacles') == -1) {
+		for (var i = 0; i < gridHeight; i++) {
+			if (i >= gridHeight / 2 - 2 && i < gridHeight / 2 + 2) {
+				continue;
+			}
+			for (var y = 6; y < gridWidth - 6; y++) {
+				obstacles.push(new B2Vec2(y, i));
+			}
 		}
 	}
 
