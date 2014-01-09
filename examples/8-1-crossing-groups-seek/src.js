@@ -73,13 +73,14 @@ function startGame() {
 		agents.push(new Agent(new B2Vec2(gridWidth - 3, yPos), 1));
 	}
 
-	//for (var i = 0; i < gridHeight; i++) {
-	//	if (i == gridHeight / 2 || i == gridHeight / 2 - 1) {
-	//		continue;
-	//	}
-	//	obstacles.push(new B2Vec2(8, i));
-	//	obstacles.push(new B2Vec2(7, i));
-	//}
+	for (var i = 0; i < gridHeight; i++) {
+		if (i >= gridHeight / 2 - 2 && i < gridHeight / 2 + 2) {
+			continue;
+		}
+		for (var y = 6; y < gridWidth - 6; y++) {
+			obstacles.push(new B2Vec2(y, i));
+		}
+	}
 
 
 	//for (var i = 0; i < 30; i++) {
@@ -318,13 +319,16 @@ var ccDensity = new Array(gridWidth);
 for (var x = 0; x < gridWidth; x++) {
 	ccDensity[x] = new Array(gridHeight);
 }
-
 var ccAvgVelocity = new Array(gridWidth);
 for (var x = 0; x < gridWidth; x++) {
 	var arr = ccAvgVelocity[x] = new Array(gridHeight);
 	for (var y = 0; y < gridHeight; y++) {
 		arr[y] = new B2Vec2();
 	}
+}
+var ccDiscomfort = new Array(gridWidth);
+for (var x = 0; x < gridWidth; x++) {
+	ccDiscomfort[x] = new Array(gridHeight);
 }
 
 //The directional array is always [North, East, South, West]
@@ -422,6 +426,17 @@ function ccClearBuffers() {
 		}
 	}
 
+	//Clear the discomfort field and repopulate from obstacles list
+	for (x = 0; x < gridWidth; x++) {
+		arr = ccDiscomfort[x];
+		for (y = 0; y < gridHeight; y++) {
+			arr[y] = 0;
+		}
+	}
+	for (x = obstacles.length - 1; x >= 0; x--) {
+		var o = obstacles[x];
+		ccDiscomfort[o.x][o.y] = Number.POSITIVE_INFINITY;
+	}
 }
 
 function ccCalculateDensityAndAverageSpeed() {
@@ -487,7 +502,7 @@ function ccCalculateUnitCostField() {
 	//Weights for formula (4) on page 4
 	var lengthWeight = 1;
 	var timeWeight = 1;
-	//var discomfortWeight = 1; //unused as we have no discomfort field
+	var discomfortWeight = 1;
 
 	//foreach grid cell
 	for (var x = 0; x < gridWidth; x++) {
@@ -523,6 +538,7 @@ function ccCalculateUnitCostField() {
 				var flowSpeed = speedVecX || speedVecY;
 
 				var targetDensity = ccDensity[targetX][targetY];
+				var targetDiscomfort = ccDiscomfort[targetX][targetY];
 
 				if (targetDensity >= densityMax) {
 					speeds[i] = flowSpeed;
@@ -538,7 +554,7 @@ function ccCalculateUnitCostField() {
 
 
 				//Work out the cost to move in to the destination cell
-				costs[i] = (speeds[i] * lengthWeight + timeWeight /* + weightedDiscomfort * targetDiscomfort */) / speeds[i];
+				costs[i] = (speeds[i] * lengthWeight + timeWeight + discomfortWeight * targetDiscomfort) / speeds[i];
 			}
 		}
 	}
