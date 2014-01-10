@@ -49,7 +49,7 @@ The Tunnel Example is CC at it's best. The 2 groups split up and pass each other
 
 I don't believe that this is how Supreme Commander 2 did its pathfinding. There is way too much recalculation that needs to be done every time step to make this efficient. The behaviour experienced in the game does not match up with how Continuum Crowds behaves. And the only article about the SupCom2 pathfinding (Elijahs Flow Fields article in Game AI Pro) talks about something that doesn't seem to integrate with Continuum Crowds.
 
-Here is the [Official SumCom2 FlowField Trailer] and another SupCom2 video of [Pathfinding Failing]. How the group of small units behave when encountering the large units shows behaviour that is not how I understand Continuum Crowds to behave. Also the bridge in the second video should be an optimum case for CC, but instead results in failure.
+Here is the [Official SupCom2 FlowField Trailer] and another SupCom2 video of [Pathfinding Failing]. How the group of small units behave when encountering the large units shows behaviour that is not how I understand Continuum Crowds to behave. Also the bridge in the second video should be an optimum case for CC, but instead results in failure.
 
 [Official SupCom2 FlowField Trailer]: http://www.youtube.com/watch?v=bovlsENv1g4
 [Pathfinding Failing]: http://www.youtube.com/watch?v=-60P96VlxXI
