@@ -23,7 +23,7 @@ Agent = function (pos, group) {
 	this.maxSpeed = 4; //grid squares / second
 
 	this.radius = 0.23;
-	this.minSeparation = 0.8 * 2; // We'll move away from anyone nearer than this
+	this.minSeparation = 0.8 * 3; // We'll move away from anyone nearer than this
 
 	this.maxCohesion = 2; //We'll move closer to anyone within this bound
 
@@ -373,7 +373,7 @@ function steeringBehaviourAvoid(agent) {
 	}
 	//Might need to avoid them.
 
-	return steerTowards(agent, resultVector);
+	return steerTowards(agent, resultVector).Divide(minFraction);
 }
 
 function steerTowards(agent, desiredDirection) {
