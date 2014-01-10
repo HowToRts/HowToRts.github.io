@@ -23,7 +23,7 @@ Agent = function (pos, group) {
 	this.maxSpeed = 4; //grid squares / second
 
 	this.radius = 0.23;
-	this.minSeparation = 0.8; // We'll move away from anyone nearer than this
+	this.minSeparation = 0.8 * 2; // We'll move away from anyone nearer than this
 
 	this.maxCohesion = 2; //We'll move closer to anyone within this bound
 
@@ -45,6 +45,9 @@ Agent = function (pos, group) {
 
 	this.body = world.CreateBody(bodyDef);
 	this.fixture = this.body.CreateFixture(fixDef);
+
+	this.body.SetUserData(this);
+	this.fixture.SetUserData(this);
 };
 Agent.prototype.position = function () {
 	return this.body.GetPosition();
@@ -60,21 +63,25 @@ var destinations = [
 
 //Called to start the game
 function startGame() {
-	//for (var yPos = 1; yPos < gridHeight - 1; yPos++) {
-	//	agents.push(new Agent(new B2Vec2(0, yPos), 0));
-	//	agents.push(new Agent(new B2Vec2(1, yPos), 0));
-	//	agents.push(new Agent(new B2Vec2(2, yPos), 0));
-	//}
+	if (true) {
+		for (var yPos = 1; yPos < gridHeight - 1; yPos++) {
+			agents.push(new Agent(new B2Vec2(0, yPos), 0));
+			agents.push(new Agent(new B2Vec2(1, yPos), 0));
+			agents.push(new Agent(new B2Vec2(2, yPos), 0));
+		}
 
-	//for (yPos = 1; yPos < gridHeight - 1; yPos++) {
-	//	agents.push(new Agent(new B2Vec2(gridWidth - 1, yPos), 1));
-	//	agents.push(new Agent(new B2Vec2(gridWidth - 2, yPos), 1));
-	//	agents.push(new Agent(new B2Vec2(gridWidth - 3, yPos), 1));
-	//}
-
-	agents.push(new Agent(new B2Vec2(0, gridHeight / 2), 0));
-	agents.push(new Agent(new B2Vec2(gridWidth - 2, gridHeight / 2), 1));
-
+		for (yPos = 1; yPos < gridHeight - 1; yPos++) {
+			agents.push(new Agent(new B2Vec2(gridWidth - 1, yPos), 1));
+			agents.push(new Agent(new B2Vec2(gridWidth - 2, yPos), 1));
+			agents.push(new Agent(new B2Vec2(gridWidth - 3, yPos), 1));
+		}
+	} else if (false) {
+		agents.push(new Agent(new B2Vec2(0, 2), 0));
+		agents.push(new Agent(new B2Vec2(gridWidth - 2, 2), 1));
+	} else if (true) {
+		agents.push(new Agent(new B2Vec2(0, gridHeight / 2), 0));
+		agents.push(new Agent(new B2Vec2(gridWidth - 2, gridHeight / 2), 1));
+	}
 	//for (var i = 0; i < gridHeight; i++) {
 	//	if (i == gridHeight / 2 || i == gridHeight / 2 - 1) {
 	//		continue;
@@ -127,6 +134,10 @@ function round(val) {
 function gameTick(dt) {
 	var i, agent;
 
+	for (i = agents.length - 1; i >= 0; i--) {
+		agents[i].avoidanceDirection = null;
+	}
+
 	//Calculate steering and flocking forces for all agents
 	for (i = agents.length - 1; i >= 0; i--) {
 		agent = agents[i];
@@ -142,7 +153,7 @@ function gameTick(dt) {
 
 		//For visually debugging forces agent.forces = [ff.Copy(), sep.Copy(), alg.Copy(), coh.Copy()];
 
-		agent.forceToApply = ff.Add(sep.Multiply(1.2)).Add(alg.Multiply(0.3)).Add(coh.Multiply(0.05)).Add(avd.Multiply(4));
+		agent.forceToApply = ff.Add(sep.Multiply(2.2)).Add(alg.Multiply(0.3)).Add(coh.Multiply(0.05)).Add(avd);
 
 		var lengthSquared = agent.forceToApply.LengthSquared();
 		if (lengthSquared > agent.maxForceSquared) {
@@ -279,6 +290,9 @@ function steeringBehaviourAvoid(agent) {
 	var closestFixture = null;
 
 	var callback = function (fixture, point, normal, fraction) {
+		if (fixture == agent.fixture) {
+			return fraction;
+		}
 		if (fraction < minFraction) {
 			minFraction = fraction;
 			closestFixture = fixture;
@@ -334,6 +348,13 @@ function steeringBehaviourAvoid(agent) {
 		//http://stackoverflow.com/questions/13221873/determining-if-one-2d-vector-is-to-the-right-or-left-of-another
 		var dot = agent.velocity().x * -vectorInOtherDirection.y + agent.velocity().y * vectorInOtherDirection.x;//B2Math.Dot(agent.velocity(), vectorInOtherDirection);
 		var isLeft = dot > 0;
+
+		if (closestFixture.GetUserData().avoidanceDirection !== null) {
+			console.log('override');
+			//Turn the same angle as them, so we go the opposite way
+			isLeft = closestFixture.GetUserData().avoidanceDirection;
+		}
+		agent.avoidanceDirection = isLeft;
 
 		console.log(agent.group + ' ' + isLeft);
 		//http://www.gamedev.net/topic/551175-rotate-vector-90-degrees-to-the-right/#entry4546571
