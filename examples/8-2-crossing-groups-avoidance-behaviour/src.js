@@ -300,7 +300,7 @@ function steeringBehaviourAvoid(agent) {
 		return 0;
 	};
 	world.RayCast(callback, agent.position(), agent.position().Copy().Add(agent.velocity()));
-	//TODO: Offset ray casts
+	//Offset ray casts
 	var velCopy = agent.velocity().Copy();
 	velCopy.Normalize();
 	var temp = velCopy.x;
@@ -329,8 +329,8 @@ function steeringBehaviourAvoid(agent) {
 
 	var combinedVelocity = ourVelocity.LengthSquared();
 
-	//We are going in the same direction
-	if (combinedVelocity > ourLength) {
+	//We are going in the same direction and they aren't avoiding
+	if (combinedVelocity > ourLength && closestFixture.GetUserData().avoidanceDirection === null) {
 		return B2Vec2.Zero;
 	}
 
@@ -350,13 +350,13 @@ function steeringBehaviourAvoid(agent) {
 		var isLeft = dot > 0;
 
 		if (closestFixture.GetUserData().avoidanceDirection !== null) {
-			console.log('override');
+			//console.log('override');
 			//Turn the same angle as them, so we go the opposite way
 			isLeft = closestFixture.GetUserData().avoidanceDirection;
 		}
 		agent.avoidanceDirection = isLeft;
 
-		console.log(agent.group + ' ' + isLeft);
+		//console.log(agent.group + ' ' + isLeft);
 		//http://www.gamedev.net/topic/551175-rotate-vector-90-degrees-to-the-right/#entry4546571
 		var rightAngle = isLeft ? new B2Vec2(-vectorInOtherDirection.y, vectorInOtherDirection.x) : new B2Vec2(vectorInOtherDirection.y, -vectorInOtherDirection.x);
 		rightAngle.Normalize();
