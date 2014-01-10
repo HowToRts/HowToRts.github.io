@@ -273,67 +273,82 @@ function steeringBehaviourAvoid(agent) {
 		return B2Vec2.Zero;
 	}
 
-	var doNothing = true;
+	var minFraction = 2;
+	var closestFixture = null;
+
+	var callback = function (fixture, point, normal, fraction) {
+		if (fraction < minFraction) {
+			minFraction = fraction;
+			closestFixture = fixture;
+		}
+		return 0;
+	};
+	world.RayCast(callback, agent.position(), agent.position().Copy().Add(agent.velocity()));
+	//TODO: Offset ray casts
+	var velCopy = agent.velocity().Copy();
+	velCopy.Normalize();
+	var temp = velCopy.x;
+	velCopy.x = velCopy.y;
+	velCopy.y = -temp;
+	velCopy.Multiply(agent.radius);
+
+	world.RayCast(callback, agent.position().Copy().Add(velCopy), agent.position().Copy().Add(agent.velocity()).Add(velCopy));
+	world.RayCast(callback, agent.position().Copy().Subtract(velCopy), agent.position().Copy().Add(agent.velocity()).Subtract(velCopy));
+
+	//TODO: May be faster to do a single AABB query or a shape query
+
+	if (closestFixture == null) {
+		return B2Vec2.Zero;
+	}
+
 	var resultVector = null;
 	var runningInTo = null;
 
-	var callback = function (fixture, point, normal, fraction) {
+	var collisionBody = closestFixture.GetBody();
+	var otherVelocity = collisionBody.GetLinearVelocity();
 
-		var collisionBody = fixture.GetBody();
-		var otherVelocity = collisionBody.GetLinearVelocity();
+	var ourVelocity = agent.velocity().Copy();
+	var ourLength = ourVelocity.LengthSquared();
+	ourVelocity.Add(otherVelocity);
 
-		var ourVelocity = agent.velocity().Copy();
-		var ourLength = ourVelocity.LengthSquared();
-		ourVelocity.Add(otherVelocity);
+	var combinedVelocity = ourVelocity.LengthSquared();
 
-		var combinedVelocity = ourVelocity.LengthSquared();
-
-		//We are going in the same direction
-		if (combinedVelocity > ourLength) {
-			return 0;
-		}
-
-		var otherType = fixture.GetShape().GetType();
-		if (otherType == B2Shape.e_circleShape) {
-			runningInTo = fixture.GetBody().GetPosition();
-
-			//Steer to go around it
-			var otherPosition = fixture.GetBody().GetPosition();
-			var otherRadius = fixture.GetShape().GetRadius();
-
-			//Vector in its direction
-			var vectorInOtherDirection = otherPosition.Copy().Subtract(agent.position());
-
-			//http://stackoverflow.com/questions/13221873/determining-if-one-2d-vector-is-to-the-right-or-left-of-another
-			var dot = agent.velocity().x * -vectorInOtherDirection.y + agent.velocity().y * vectorInOtherDirection.x;//B2Math.Dot(agent.velocity(), vectorInOtherDirection);
-			var isLeft = dot > 0;
-
-			console.log(agent.group + ' ' + isLeft);
-			//http://www.gamedev.net/topic/551175-rotate-vector-90-degrees-to-the-right/#entry4546571
-			var rightAngle = isLeft ? new B2Vec2(-vectorInOtherDirection.y, vectorInOtherDirection.x) : new B2Vec2(vectorInOtherDirection.y, -vectorInOtherDirection.x);
-			rightAngle.Normalize();
-
-			rightAngle.Multiply(agent.radius + otherRadius);
-			
-			//Are we more left or right of them
-			//Move it out based on our radius + theirs
-			resultVector = rightAngle;//.Add(agent.position());
-		} else if (otherType == B2Shape.e_polygonShape) {
-			debugger; //TODO
-		} else {
-			debugger; //WTF!
-		}
-		//Might need to avoid them.
-
-		doNothing = false;
-		return 0;
-		//return fraction
-	};
-	world.RayCast(callback, agent.position(), agent.position().Copy().Add(agent.velocity()));
-
-	if (doNothing) {
+	//We are going in the same direction
+	if (combinedVelocity > ourLength) {
 		return B2Vec2.Zero;
 	}
+
+	var otherType = closestFixture.GetShape().GetType();
+	if (otherType == B2Shape.e_circleShape) {
+		runningInTo = closestFixture.GetBody().GetPosition();
+
+		//Steer to go around it
+		var otherPosition = closestFixture.GetBody().GetPosition();
+		var otherRadius = closestFixture.GetShape().GetRadius();
+
+		//Vector in its direction
+		var vectorInOtherDirection = otherPosition.Copy().Subtract(agent.position());
+
+		//http://stackoverflow.com/questions/13221873/determining-if-one-2d-vector-is-to-the-right-or-left-of-another
+		var dot = agent.velocity().x * -vectorInOtherDirection.y + agent.velocity().y * vectorInOtherDirection.x;//B2Math.Dot(agent.velocity(), vectorInOtherDirection);
+		var isLeft = dot > 0;
+
+		console.log(agent.group + ' ' + isLeft);
+		//http://www.gamedev.net/topic/551175-rotate-vector-90-degrees-to-the-right/#entry4546571
+		var rightAngle = isLeft ? new B2Vec2(-vectorInOtherDirection.y, vectorInOtherDirection.x) : new B2Vec2(vectorInOtherDirection.y, -vectorInOtherDirection.x);
+		rightAngle.Normalize();
+
+		rightAngle.Multiply(agent.radius + otherRadius);
+
+		//Are we more left or right of them
+		//Move it out based on our radius + theirs
+		resultVector = rightAngle;//.Add(agent.position());
+	} else if (otherType == B2Shape.e_polygonShape) {
+		debugger; //TODO
+	} else {
+		debugger; //WTF!
+	}
+	//Might need to avoid them.
 
 	return steerTowards(agent, resultVector);
 }
