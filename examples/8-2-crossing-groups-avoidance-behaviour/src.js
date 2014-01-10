@@ -60,17 +60,20 @@ var destinations = [
 
 //Called to start the game
 function startGame() {
-	for (var yPos = 1; yPos < gridHeight - 1; yPos++) {
-		agents.push(new Agent(new B2Vec2(0, yPos), 0));
-		agents.push(new Agent(new B2Vec2(1, yPos), 0));
-		agents.push(new Agent(new B2Vec2(2, yPos), 0));
-	}
+	//for (var yPos = 1; yPos < gridHeight - 1; yPos++) {
+	//	agents.push(new Agent(new B2Vec2(0, yPos), 0));
+	//	agents.push(new Agent(new B2Vec2(1, yPos), 0));
+	//	agents.push(new Agent(new B2Vec2(2, yPos), 0));
+	//}
 
-	for (yPos = 1; yPos < gridHeight - 1; yPos++) {
-		agents.push(new Agent(new B2Vec2(gridWidth - 1, yPos), 1));
-		agents.push(new Agent(new B2Vec2(gridWidth - 2, yPos), 1));
-		agents.push(new Agent(new B2Vec2(gridWidth - 3, yPos), 1));
-	}
+	//for (yPos = 1; yPos < gridHeight - 1; yPos++) {
+	//	agents.push(new Agent(new B2Vec2(gridWidth - 1, yPos), 1));
+	//	agents.push(new Agent(new B2Vec2(gridWidth - 2, yPos), 1));
+	//	agents.push(new Agent(new B2Vec2(gridWidth - 3, yPos), 1));
+	//}
+
+	agents.push(new Agent(new B2Vec2(0, gridHeight / 2), 0));
+	agents.push(new Agent(new B2Vec2(gridWidth - 2, gridHeight / 2), 1));
 
 	//for (var i = 0; i < gridHeight; i++) {
 	//	if (i == gridHeight / 2 || i == gridHeight / 2 - 1) {
@@ -137,7 +140,7 @@ function gameTick(dt) {
 
 		//For visually debugging forces agent.forces = [ff.Copy(), sep.Copy(), alg.Copy(), coh.Copy()];
 
-		agent.forceToApply = ff.Add(sep.Multiply(1.2)).Add(alg.Multiply(0.3)).Add(coh.Multiply(0.05));
+		agent.forceToApply = ff.Add(sep.Multiply(1.2)).Add(alg.Multiply(0.3)).Add(coh.Multiply(0.05)).Add(avd.Multiply(4));
 
 		var lengthSquared = agent.forceToApply.LengthSquared();
 		if (lengthSquared > agent.maxForceSquared) {
@@ -266,13 +269,13 @@ function steeringBehaviourAlignment(agent) {
 }
 
 function steeringBehaviourAvoid(agent) {
-
 	if (agent.velocity().LengthSquared() <= agent.radius) {
 		return B2Vec2.Zero;
 	}
 
-	var doNothing = false;
+	var doNothing = true;
 	var resultVector = null;
+	var runningInTo = null;
 
 	var callback = function (fixture, point, normal, fraction) {
 
@@ -286,13 +289,14 @@ function steeringBehaviourAvoid(agent) {
 		var combinedVelocity = ourVelocity.LengthSquared();
 
 		//We are going in the same direction
-		if (combinedVelocity > ourVelocity) {
-			doNothing = true;
+		if (combinedVelocity > ourLength) {
 			return 0;
 		}
 
 		var otherType = fixture.GetShape().GetType();
 		if (otherType == B2Shape.e_circleShape) {
+			runningInTo = fixture.GetBody().GetPosition();
+
 			//Steer to go around it
 			var otherPosition = fixture.GetBody().GetPosition();
 			var otherRadius = fixture.GetShape().GetRadius();
@@ -301,9 +305,10 @@ function steeringBehaviourAvoid(agent) {
 			var vectorInOtherDirection = otherPosition.Copy().Subtract(agent.position());
 
 			//http://stackoverflow.com/questions/13221873/determining-if-one-2d-vector-is-to-the-right-or-left-of-another
-			var dot = B2Math.Dot(agent.velocity(), vectorInOtherDirection);
-			var isLeft = dot < 0;
-			
+			var dot = agent.velocity().x * -vectorInOtherDirection.y + agent.velocity().y * vectorInOtherDirection.x;//B2Math.Dot(agent.velocity(), vectorInOtherDirection);
+			var isLeft = dot > 0;
+
+			console.log(agent.group + ' ' + isLeft);
 			//http://www.gamedev.net/topic/551175-rotate-vector-90-degrees-to-the-right/#entry4546571
 			var rightAngle = isLeft ? new B2Vec2(-vectorInOtherDirection.y, vectorInOtherDirection.x) : new B2Vec2(vectorInOtherDirection.y, -vectorInOtherDirection.x);
 			rightAngle.Normalize();
@@ -312,7 +317,7 @@ function steeringBehaviourAvoid(agent) {
 			
 			//Are we more left or right of them
 			//Move it out based on our radius + theirs
-			resultVector = rightAngle.Add(otherPosition;
+			resultVector = rightAngle;//.Add(agent.position());
 		} else if (otherType == B2Shape.e_polygonShape) {
 			debugger; //TODO
 		} else {
@@ -320,6 +325,8 @@ function steeringBehaviourAvoid(agent) {
 		}
 		//Might need to avoid them.
 
+		doNothing = false;
+		return 0;
 		//return fraction
 	};
 	world.RayCast(callback, agent.position(), agent.position().Copy().Add(agent.velocity()));
@@ -328,7 +335,7 @@ function steeringBehaviourAvoid(agent) {
 		return B2Vec2.Zero;
 	}
 
-	return resultVector;
+	return steerTowards(agent, resultVector);
 }
 
 function steerTowards(agent, desiredDirection) {

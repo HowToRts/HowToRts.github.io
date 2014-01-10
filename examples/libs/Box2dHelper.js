@@ -1,12 +1,15 @@
 //shortcut all the common stuff
 
+B2Math = Box2D.Common.Math.b2Math;
 B2Vec2 = Box2D.Common.Math.b2Vec2;
+
 B2BodyDef = Box2D.Dynamics.b2BodyDef;
 B2Body = Box2D.Dynamics.b2Body;
 B2FixtureDef = Box2D.Dynamics.b2FixtureDef;
 B2Fixture = Box2D.Dynamics.b2Fixture;
 B2World = Box2D.Dynamics.b2World;
 B2MassData = Box2D.Collision.Shapes.b2MassData;
+B2Shape = Box2D.Collision.Shapes.b2Shape;
 B2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape;
 B2CircleShape = Box2D.Collision.Shapes.b2CircleShape;
 
