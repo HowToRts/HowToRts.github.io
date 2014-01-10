@@ -138,6 +138,8 @@ function gameTick(dt) {
 		var coh = steeringBehaviourCohesion(agent);
 		var avd = steeringBehaviourAvoid(agent);
 
+		agent.avd = avd.Copy();
+
 		//For visually debugging forces agent.forces = [ff.Copy(), sep.Copy(), alg.Copy(), coh.Copy()];
 
 		agent.forceToApply = ff.Add(sep.Multiply(1.2)).Add(alg.Multiply(0.3)).Add(coh.Multiply(0.05)).Add(avd.Multiply(4));

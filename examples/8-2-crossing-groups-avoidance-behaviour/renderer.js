@@ -119,15 +119,16 @@ function rendererTick() {
 		bitmap.y = gridPx * (e.position().y + 0.5);
 		bitmap.rotation = e.rotation;
 
-		if (e.forces) {
+		if (e.avd) {
 			forceLine.x = bitmap.x;
 			forceLine.y = bitmap.y;
-			for (var j = 0; j < e.forces.length; j++) {
-				e.forces[j].Multiply(4);
-			}
-			forceLine.graphics.clear().beginStroke('#f00').moveTo(0, 0).lineTo(e.forces[0].x, e.forces[0].y);
-			forceLine.graphics.beginStroke('#0f0').moveTo(0, 0).lineTo(e.forces[1].x, e.forces[1].y);
-			forceLine.graphics.beginStroke('#00f').moveTo(0, 0).lineTo(e.forces[2].x, e.forces[2].y);
+			//for (var j = 0; j < e.forces.length; j++) {
+			//	e.forces[j].Multiply(4);
+			//}
+			e.avd.Multiply(4);
+			forceLine.graphics.clear().beginStroke('#0f0').moveTo(0, 0).lineTo(e.avd.x, e.avd.y);
+			//forceLine.graphics.beginStroke('#0f0').moveTo(0, 0).lineTo(e.forces[1].x, e.forces[1].y);
+			//forceLine.graphics.beginStroke('#00f').moveTo(0, 0).lineTo(e.forces[2].x, e.forces[2].y);
 		}
 	}
 }
