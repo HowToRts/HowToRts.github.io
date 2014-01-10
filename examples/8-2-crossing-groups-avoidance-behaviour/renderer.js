@@ -78,9 +78,9 @@ var agentBitmaps = {};
 var agentForceLines = {};
 
 //TODO: Can share the graphics object here apparently http://www.createjs.com/Docs/EaselJS/classes/Shape.html
-function createAgentShape(agent, firstGroup) {
+function createAgentShape(agent) {
 	var shape = new createjs.Shape();
-	shape.graphics.beginStroke(firstGroup ? '#00f' : '#f00');
+	shape.graphics.beginStroke(agent.group ? '#f00' : '#00f');
 	shape.graphics.drawCircle(0, 0, agent.radius * gridPx);
 
 	shape.graphics.moveTo(0, 0);
@@ -108,7 +108,7 @@ function rendererTick() {
 		var bitmap = agentBitmaps[e._id];
 		var forceLine = agentForceLines[e._id];
 		if (!bitmap) {
-			bitmap = agentBitmaps[e._id] = createAgentShape(e, i < agents.length / 2);
+			bitmap = agentBitmaps[e._id] = createAgentShape(e);
 			forceLine = agentForceLines[e._id] = new createjs.Shape();
 
 			stage.addChild(bitmap);
