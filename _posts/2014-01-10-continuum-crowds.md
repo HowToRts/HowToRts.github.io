@@ -58,6 +58,6 @@ I expect that they took some of the ideas of Continuum Crowds like collision pre
 
 Of course, I could be totally wrong, these are just my thoughts!
 
-Next up I'll look in to some of these avoidance behaviours, possibly using [ideas from Starcraft 2s Pathing], or from .
+Next up I'll look in to some of these avoidance behaviours, possibly using [ideas from Starcraft 2s Pathing].
 
 [ideas from Starcraft 2s Pathing]: /2014/01/06/pathing-literature-review.html#starcraft-ii-pathing
