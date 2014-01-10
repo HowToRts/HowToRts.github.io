@@ -293,7 +293,7 @@ function steeringBehaviourAvoid(agent) {
 		if (fixture == agent.fixture) {
 			return fraction;
 		}
-		if (fraction < minFraction) {
+		if (fraction < minFraction && fixture.GetBody().GetType() == B2Body.b2_dynamicBody) {
 			minFraction = fraction;
 			closestFixture = fixture;
 		}
