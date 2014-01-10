@@ -19,13 +19,13 @@ Agent = function (pos, group) {
 
 	this.rotation = 0;
 
-	this.maxForce = 20; //rate of acceleration
+	this.maxForce = 50; //rate of acceleration
 	this.maxSpeed = 4; //grid squares / second
 
 	this.radius = 0.23;
-	this.minSeparation = 0.8 * 3; // We'll move away from anyone nearer than this
+	this.minSeparation = this.radius * 8; // We'll move away from anyone nearer than this
 
-	this.maxCohesion = 2; //We'll move closer to anyone within this bound
+	this.maxCohesion = this.radius * 10; //We'll move closer to anyone within this bound
 
 	this.maxForceSquared = this.maxForce * this.maxForce;
 	this.maxSpeedSquared = this.maxSpeed * this.maxSpeed;
