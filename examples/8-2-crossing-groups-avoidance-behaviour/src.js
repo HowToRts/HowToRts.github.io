@@ -23,7 +23,7 @@ Agent = function (pos, group) {
 	this.maxSpeed = 4; //grid squares / second
 
 	this.radius = 0.23;
-	this.minSeparation = this.radius * 8; // We'll move away from anyone nearer than this
+	this.minSeparation = this.radius * 4; // We'll move away from anyone nearer than this
 
 	this.maxCohesion = this.radius * 10; //We'll move closer to anyone within this bound
 
@@ -365,7 +365,7 @@ function steeringBehaviourAvoid(agent) {
 
 		//Are we more left or right of them
 		//Move it out based on our radius + theirs
-		resultVector = rightAngle;//.Add(agent.position());
+		resultVector = rightAngle;
 	} else if (otherType == B2Shape.e_polygonShape) {
 		debugger; //TODO
 	} else {
