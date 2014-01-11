@@ -286,21 +286,27 @@ function steeringBehaviourAvoid(agent) {
 		return B2Vec2.Zero;
 	}
 
+	//Do some ray casts to work out what is in front of us
 	var minFraction = 2;
 	var closestFixture = null;
 
 	var callback = function (fixture, point, normal, fraction) {
+		//Ignore ourself
 		if (fixture == agent.fixture) {
 			return fraction;
 		}
+		//Only care about dynamic (moving) things
 		if (fraction < minFraction && fixture.GetBody().GetType() == B2Body.b2_dynamicBody) {
 			minFraction = fraction;
 			closestFixture = fixture;
 		}
 		return 0;
 	};
+
+	//Do a straight forward cast from our center
 	world.RayCast(callback, agent.position(), agent.position().Copy().Add(agent.velocity()));
-	//Offset ray casts
+
+	//Calculate an offset so we can do casts from our edge
 	var velCopy = agent.velocity().Copy();
 	velCopy.Normalize();
 	var temp = velCopy.x;
@@ -308,6 +314,7 @@ function steeringBehaviourAvoid(agent) {
 	velCopy.y = -temp;
 	velCopy.Multiply(agent.radius);
 
+	//Do a raycast forwards from our right and left edge
 	world.RayCast(callback, agent.position().Copy().Add(velCopy), agent.position().Copy().Add(agent.velocity()).Add(velCopy));
 	world.RayCast(callback, agent.position().Copy().Subtract(velCopy), agent.position().Copy().Add(agent.velocity()).Subtract(velCopy));
 
@@ -318,61 +325,51 @@ function steeringBehaviourAvoid(agent) {
 	}
 
 	var resultVector = null;
-	var runningInTo = null;
 
 	var collisionBody = closestFixture.GetBody();
-	var otherVelocity = collisionBody.GetLinearVelocity();
 
-	var ourVelocity = agent.velocity().Copy();
-	var ourLength = ourVelocity.LengthSquared();
-	ourVelocity.Add(otherVelocity);
+	var ourVelocityLengthSquared = agent.velocity().LengthSquared();
+	var combinedVelocity = agent.velocity().Copy().Add(collisionBody.GetLinearVelocity());
 
-	var combinedVelocity = ourVelocity.LengthSquared();
+	var combinedVelocityLengthSquared = combinedVelocity.LengthSquared();
 
 	//We are going in the same direction and they aren't avoiding
-	if (combinedVelocity > ourLength && closestFixture.GetUserData().avoidanceDirection === null) {
+	if (combinedVelocityLengthSquared > ourVelocityLengthSquared && closestFixture.GetUserData().avoidanceDirection === null) {
 		return B2Vec2.Zero;
 	}
 
+	//Steer to go around it
 	var otherType = closestFixture.GetShape().GetType();
 	if (otherType == B2Shape.e_circleShape) {
-		runningInTo = closestFixture.GetBody().GetPosition();
 
-		//Steer to go around it
-		var otherPosition = closestFixture.GetBody().GetPosition();
-		var otherRadius = closestFixture.GetShape().GetRadius();
+		var vectorInOtherDirection = closestFixture.GetBody().GetPosition().Copy().Subtract(agent.position());
 
-		//Vector in its direction
-		var vectorInOtherDirection = otherPosition.Copy().Subtract(agent.position());
-
-		//http://stackoverflow.com/questions/13221873/determining-if-one-2d-vector-is-to-the-right-or-left-of-another
-		var dot = agent.velocity().x * -vectorInOtherDirection.y + agent.velocity().y * vectorInOtherDirection.x;//B2Math.Dot(agent.velocity(), vectorInOtherDirection);
-		var isLeft = dot > 0;
-
+		//Are we more left or right of them
+		var isLeft;
 		if (closestFixture.GetUserData().avoidanceDirection !== null) {
-			//console.log('override');
-			//Turn the same angle as them, so we go the opposite way
+			//If they are avoiding, avoid with the same direction as them, so we go the opposite way
 			isLeft = closestFixture.GetUserData().avoidanceDirection;
+		} else {
+			//http://stackoverflow.com/questions/13221873/determining-if-one-2d-vector-is-to-the-right-or-left-of-another
+			var dot = agent.velocity().x * -vectorInOtherDirection.y + agent.velocity().y * vectorInOtherDirection.x;
+			isLeft = dot > 0;
 		}
 		agent.avoidanceDirection = isLeft;
 
-		//console.log(agent.group + ' ' + isLeft);
+		//Calculate a right angle of the vector between us
 		//http://www.gamedev.net/topic/551175-rotate-vector-90-degrees-to-the-right/#entry4546571
-		var rightAngle = isLeft ? new B2Vec2(-vectorInOtherDirection.y, vectorInOtherDirection.x) : new B2Vec2(vectorInOtherDirection.y, -vectorInOtherDirection.x);
-		rightAngle.Normalize();
+		resultVector = isLeft ? new B2Vec2(-vectorInOtherDirection.y, vectorInOtherDirection.x) : new B2Vec2(vectorInOtherDirection.y, -vectorInOtherDirection.x);
+		resultVector.Normalize();
 
-		rightAngle.Multiply(agent.radius + otherRadius);
-
-		//Are we more left or right of them
 		//Move it out based on our radius + theirs
-		resultVector = rightAngle;
-	} else if (otherType == B2Shape.e_polygonShape) {
-		debugger; //TODO
+		resultVector.Multiply(agent.radius + closestFixture.GetShape().GetRadius());
 	} else {
-		debugger; //WTF!
+		//Not supported
+		//otherType == B2Shape.e_polygonShape
+		debugger;
 	}
-	//Might need to avoid them.
 
+	//Steer torwards it, increasing force based on how close we are
 	return steerTowards(agent, resultVector).Divide(minFraction);
 }
 
