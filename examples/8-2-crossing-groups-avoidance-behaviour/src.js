@@ -63,7 +63,28 @@ var destinations = [
 
 //Called to start the game
 function startGame() {
-	if (true) {
+	var url = document.URL;
+	var hash = url.substring(url.indexOf("#")+1);
+
+	if (hash == 'onemiddle') {
+		agents.push(new Agent(new B2Vec2(0, gridHeight / 2), 0));
+		agents.push(new Agent(new B2Vec2(gridWidth - 2, gridHeight / 2), 1));
+	} else if (hash == 'onetop') {
+		agents.push(new Agent(new B2Vec2(0, 2), 0));
+		agents.push(new Agent(new B2Vec2(gridWidth - 2, 2), 1));
+		destinations[0].y = gridHeight - 1;
+		destinations[1].y = gridHeight - 1;
+	} else if (hash == 'smallgroups') {
+
+		for (var yPos = gridHeight / 2 - 1; yPos <= gridHeight / 2 + 1; yPos++) {
+			agents.push(new Agent(new B2Vec2(0, yPos), 0));
+			agents.push(new Agent(new B2Vec2(1, yPos), 0));
+			agents.push(new Agent(new B2Vec2(2, yPos), 0));
+			agents.push(new Agent(new B2Vec2(gridWidth - 1, yPos), 1));
+			agents.push(new Agent(new B2Vec2(gridWidth - 2, yPos), 1));
+			agents.push(new Agent(new B2Vec2(gridWidth - 3, yPos), 1));
+		}
+	} else {
 		for (var yPos = 1; yPos < gridHeight - 1; yPos++) {
 			agents.push(new Agent(new B2Vec2(0, yPos), 0));
 			agents.push(new Agent(new B2Vec2(1, yPos), 0));
@@ -75,20 +96,7 @@ function startGame() {
 			agents.push(new Agent(new B2Vec2(gridWidth - 2, yPos), 1));
 			agents.push(new Agent(new B2Vec2(gridWidth - 3, yPos), 1));
 		}
-	} else if (false) {
-		agents.push(new Agent(new B2Vec2(0, 2), 0));
-		agents.push(new Agent(new B2Vec2(gridWidth - 2, 2), 1));
-	} else if (true) {
-		agents.push(new Agent(new B2Vec2(0, gridHeight / 2), 0));
-		agents.push(new Agent(new B2Vec2(gridWidth - 2, gridHeight / 2), 1));
 	}
-	//for (var i = 0; i < gridHeight; i++) {
-	//	if (i == gridHeight / 2 || i == gridHeight / 2 - 1) {
-	//		continue;
-	//	}
-	//	obstacles.push(new B2Vec2(8, i));
-	//	obstacles.push(new B2Vec2(7, i));
-	//}
 
 
 	//for (var i = 0; i < 30; i++) {
