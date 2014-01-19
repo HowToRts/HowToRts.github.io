@@ -110,7 +110,7 @@ function loadingComplete() {
 
 	groundMesh.position.x = WIDTH / 2;
 	groundMesh.position.y = HEIGHT / 2;
-	groundMesh.position.z = -0.001;
+	groundMesh.position.z = 0;
 
 	groundMesh.castShadow = false;
 	groundMesh.receiveShadow = true;
@@ -139,6 +139,7 @@ function loadingComplete() {
 		}
 	}
 	var grid = new THREE.Line(gridGeometry, lineMaterial);
+	grid.position.z = 1;
 	scene.add(grid);
 
 
