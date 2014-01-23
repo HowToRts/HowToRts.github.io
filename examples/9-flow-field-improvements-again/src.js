@@ -438,6 +438,15 @@ function generateFlowField() {
 				continue;
 			}
 
+			if (losGrid[x][y]) {
+				//Just point straight at the destination
+				var p = flowField[x][y] = destination.Copy();
+				p.x -= x;
+				p.y -= y;
+				p.Normalize();
+				continue;
+			}
+
 			var pos = new B2Vec2(x, y);
 			var neighbours = allNeighboursOf(pos);
 
