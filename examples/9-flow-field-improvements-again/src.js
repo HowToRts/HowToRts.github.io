@@ -327,7 +327,7 @@ function generateDijkstraGrid() {
 			arr2 = losGrid[x];
 		for (var y = 0; y < gridHeight; y++) {
 			arr[y] = null;
-			arr2[y] = false;
+			arr2[y] = null; //null: maybe has LOS
 		}
 	}
 
@@ -336,13 +336,13 @@ function generateDijkstraGrid() {
 		var t = obstacles[i];
 
 		dijkstraGrid[t.x][t.y] = Number.MAX_VALUE;
+		losGrid[t.x][t.y] = false;
 	}
 
 	//flood fill out from the end point
 	var pathEnd = destination.Copy();
 	pathEnd.Round();
 	pathEnd.distance = 0;
-	pathEnd.maybeLos = true;
 	dijkstraGrid[pathEnd.x][pathEnd.y] = 0;
 	losGrid[pathEnd.x][pathEnd.y] = true;
 
@@ -352,7 +352,7 @@ function generateDijkstraGrid() {
 	for (i = 0; i < toVisit.length; i++) {
 		var at = toVisit[i];
 
-		if (at.maybeLos) {
+		if (losGrid[at.x][at.y] === null) {
 			//We might have LOS, use something similar to http://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
 			//We look at our first neighbour in the direction of the start, if it has LOS then we do too
 
@@ -384,17 +384,19 @@ function generateDijkstraGrid() {
 					}
 				}
 
+				//Not a straight line vertically/horizontally to the exit
 				if (yDifAbs > 0 && xDifAbs > 0) {
+					//If the diagonal doesn't have LOS, we don't
 					if (!losGrid[at.x + xDif][at.y + yDif]) {
 						hasLos = false;
 					} else if (yDifAbs === xDifAbs) {
+						//If we are a diagonal and either straight direction is a wall, we don't have LOS
 						if (dijkstraGrid[at.x + xDif][at.y] === Number.MAX_VALUE || dijkstraGrid[at.x][at.y + yDif] === Number.MAX_VALUE) {
 							hasLos = false;
 						}
 					}
 				}
 				//It's a definite now
-				at.maybeLos = hasLos;
 				losGrid[at.x][at.y] = hasLos;
 				//TODO: Could replace our distance with a direct distance? Might not be worth it
 			}
@@ -409,7 +411,6 @@ function generateDijkstraGrid() {
 			//We will only ever visit every node once as we are always visiting nodes in the most efficient order
 			if (dijkstraGrid[n.x][n.y] === null) {
 				n.distance = at.distance + 1;
-				n.maybeLos = at.maybeLos;
 				dijkstraGrid[n.x][n.y] = n.distance;
 				toVisit.push(n);
 			}
