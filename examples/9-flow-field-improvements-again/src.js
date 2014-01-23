@@ -308,19 +308,26 @@ var dijkstraGrid = new Array(gridWidth);
 for (var x = 0; x < gridWidth; x++) {
 	dijkstraGrid[x] = new Array(gridHeight);
 }
+var losGrid = new Array(gridWidth);
+for (x = 0; x < gridWidth; x++) {
+	losGrid[x] = new Array(gridHeight);
+}
 var flowField = new Array(gridWidth);
 for (x = 0; x < gridWidth; x++) {
 	flowField[x] = new Array(gridHeight);
 }
 
+Math.sign = Math.sign || function (number) { return number > 0 ? 1 : number < 0 ? -1 : 0; };
 
 function generateDijkstraGrid() {
 	//Generate an empty grid
 	//set all places as weight null, which will stand for unvisited
 	for (var x = 0; x < gridWidth; x++) {
-		var arr = dijkstraGrid[x];
+		var arr = dijkstraGrid[x],
+			arr2 = losGrid[x];
 		for (var y = 0; y < gridHeight; y++) {
 			arr[y] = null;
+			arr2[y] = false;
 		}
 	}
 
@@ -335,13 +342,65 @@ function generateDijkstraGrid() {
 	var pathEnd = destination.Copy();
 	pathEnd.Round();
 	pathEnd.distance = 0;
+	pathEnd.maybeLos = true;
 	dijkstraGrid[pathEnd.x][pathEnd.y] = 0;
+	losGrid[pathEnd.x][pathEnd.y] = true;
 
 	var toVisit = [pathEnd];
 
 	//for each node we need to visit, starting with the pathEnd
 	for (i = 0; i < toVisit.length; i++) {
-		var neighbours = straightNeighboursOf(toVisit[i]);
+		var at = toVisit[i];
+
+		if (at.maybeLos) {
+			//We might have LOS, use something similar to http://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
+			//We look at our first neighbour in the direction of the start, if it has LOS then we do too
+
+			//Only need to see if don't have LOS if we aren't the end
+			if (at !== pathEnd) {
+				var xDif = pathEnd.x - at.x;
+				var yDif = pathEnd.y - at.y;
+
+				var xDifAbs = Math.abs(xDif);
+				var yDifAbs = Math.abs(yDif);
+
+				var hasLos = false;
+
+				xDif = Math.sign(xDif);
+				yDif = Math.sign(yDif);
+
+				//Check in the x direction
+				if (xDifAbs >= yDifAbs) {
+
+					if (losGrid[at.x + xDif][at.y]) {
+						hasLos = true;
+					}
+				}
+				//Check in the y direction
+				if (yDifAbs >= xDifAbs) {
+
+					if (losGrid[at.x][at.y + yDif]) {
+						hasLos = true;
+					}
+				}
+
+				if (yDifAbs > 0 && xDifAbs > 0) {
+					if (!losGrid[at.x + xDif][at.y + yDif]) {
+						hasLos = false;
+					} else if (yDifAbs === xDifAbs) {
+						if (dijkstraGrid[at.x + xDif][at.y] === Number.MAX_VALUE || dijkstraGrid[at.x][at.y + yDif] === Number.MAX_VALUE) {
+							hasLos = false;
+						}
+					}
+				}
+				//It's a definite now
+				at.maybeLos = hasLos;
+				losGrid[at.x][at.y] = hasLos;
+				//TODO: Could replace our distance with a direct distance? Might not be worth it
+			}
+		}
+
+		var neighbours = straightNeighboursOf(at);
 
 		//for each neighbour of this node (only straight line neighbours, not diagonals)
 		for (var j = 0; j < neighbours.length; j++) {
@@ -349,7 +408,8 @@ function generateDijkstraGrid() {
 
 			//We will only ever visit every node once as we are always visiting nodes in the most efficient order
 			if (dijkstraGrid[n.x][n.y] === null) {
-				n.distance = toVisit[i].distance + 1;
+				n.distance = at.distance + 1;
+				n.maybeLos = at.maybeLos;
 				dijkstraGrid[n.x][n.y] = n.distance;
 				toVisit.push(n);
 			}

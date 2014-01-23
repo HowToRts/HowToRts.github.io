@@ -104,6 +104,14 @@ function updateWeightsAndFieldVisuals() {
 			}
 		}
 	}
+	flowFieldShape.graphics.endStroke().beginFill('rgba(255,255,0,0.4)');
+	for (x = 0; x < gridWidth; x++) {
+		for (y = 0; y < gridWidth; y++) {
+			if (losGrid[x][y]) {
+				flowFieldShape.graphics.drawRect((x - 0.5) * gridPx, (y - 0.5) * gridPx, gridPx, gridPx);
+			}
+		}
+	}
 	weightsAndFieldShape.addChild(flowFieldShape);
 }
 
