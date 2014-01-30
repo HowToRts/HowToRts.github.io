@@ -336,7 +336,6 @@ function generateDijkstraGrid() {
 		var t = obstacles[i];
 
 		dijkstraGrid[t.x][t.y] = Number.MAX_VALUE;
-		losGrid[t.x][t.y] = false;
 	}
 
 	//flood fill out from the end point
@@ -355,52 +354,7 @@ function generateDijkstraGrid() {
 		//Calculate if we have LOS
 		//Only need to see if don't have LOS if we aren't the end
 		if (at !== pathEnd) {
-			var xDif = pathEnd.x - at.x;
-			var yDif = pathEnd.y - at.y;
-
-			var xDifAbs = Math.abs(xDif);
-			var yDifAbs = Math.abs(yDif);
-
-			var hasLos = false;
-
-			var xDifOne = Math.sign(xDif);
-			var yDifOne = Math.sign(yDif);
-
-			//If we are not on an exact line to the destination then check the direction we are furtherest on
-			// If it has LOS then we might
-
-			//Check in the x direction
-			if (xDifAbs >= yDifAbs) {
-
-				if (losGrid[at.x + xDifOne][at.y]) {
-					hasLos = true;
-				}
-			}
-			//Check in the y direction
-			if (yDifAbs >= xDifAbs) {
-
-				if (losGrid[at.x][at.y + yDifOne]) {
-					hasLos = true;
-				}
-			}
-
-			//Not a straight line vertically/horizontally to the exit
-			if (yDifAbs > 0 && xDifAbs > 0) {
-				//If the diagonal doesn't have LOS, we don't
-				if (!losGrid[at.x + xDifOne][at.y + yDifOne]) {
-					hasLos = false;
-				} else if (yDifAbs === xDifAbs) {
-					//If we are an exact diagonal and either straight direction is a wall, we don't have LOS
-					if (dijkstraGrid[at.x + xDifOne][at.y] === Number.MAX_VALUE || dijkstraGrid[at.x][at.y + yDifOne] === Number.MAX_VALUE) {
-						hasLos = false;
-					}
-				}
-			}
-			//It's a definite now
-			losGrid[at.x][at.y] = hasLos;
-
-			//TODO: Could replace our distance with a direct distance?
-			// Might not be worth it, would need to use a priority queue for the open list.
+			calculateLos(at, pathEnd);
 		}
 
 		var neighbours = straightNeighboursOf(at);
@@ -419,6 +373,54 @@ function generateDijkstraGrid() {
 	}
 }
 
+function calculateLos(at, pathEnd) {
+	var xDif = pathEnd.x - at.x;
+	var yDif = pathEnd.y - at.y;
+
+	var xDifAbs = Math.abs(xDif);
+	var yDifAbs = Math.abs(yDif);
+
+	var hasLos = false;
+
+	var xDifOne = Math.sign(xDif);
+	var yDifOne = Math.sign(yDif);
+
+	//Check the direction we are furtherest from the destination on (or both if equal)
+	// If it has LOS then we might
+
+	//Check in the x direction
+	if (xDifAbs >= yDifAbs) {
+
+		if (losGrid[at.x + xDifOne][at.y]) {
+			hasLos = true;
+		}
+	}
+	//Check in the y direction
+	if (yDifAbs >= xDifAbs) {
+
+		if (losGrid[at.x][at.y + yDifOne]) {
+			hasLos = true;
+		}
+	}
+
+	//If we are not a straight line vertically/horizontally to the exit
+	if (yDifAbs > 0 && xDifAbs > 0) {
+		//If the diagonal doesn't have LOS, we don't
+		if (!losGrid[at.x + xDifOne][at.y + yDifOne]) {
+			hasLos = false;
+		} else if (yDifAbs === xDifAbs) {
+			//If we are an exact diagonal and either straight direction is a wall, we don't have LOS
+			if (dijkstraGrid[at.x + xDifOne][at.y] === Number.MAX_VALUE || dijkstraGrid[at.x][at.y + yDifOne] === Number.MAX_VALUE) {
+				hasLos = false;
+			}
+		}
+	}
+	//It's a definite now
+	losGrid[at.x][at.y] = hasLos;
+
+	//TODO: Could replace our distance with a direct distance?
+	// Might not be worth it, would need to use a priority queue for the open list.
+}
 
 function generateFlowField() {
 	var x, y;
