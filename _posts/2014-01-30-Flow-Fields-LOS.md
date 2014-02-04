@@ -145,4 +145,4 @@ This gives us the following [result], cells with Line of Site are highlighted in
 
 [result]: /examples/9-flow-field-improvements-again/index.html
 
-<iframe src="/examples/9-flow-field-improvements-again/index.html" style="width:800px; height:448px; background-color: white" />
+<iframe src="/examples/9-flow-field-improvements-again/index.html" style="width:800px; height:448px; background-color: white"></iframe>
