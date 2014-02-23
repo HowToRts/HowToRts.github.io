@@ -2,18 +2,18 @@
 layout: post
 title:  "Rendering combined range rings"
 description: "When you have multiple units, rather than rendering one circle for each of their weapon ranges, it looks nicer to draw the outline of all of the ranges instead"
-date:   2014-02-06
+date:   2014-02-23
 ---
 
 Many RTS games have a way to visualise your units range. In Planetary Annihilation this is done by holding the Ctrl key. This gives you something that looks like the following.
 
 <img class="inline" src="/images/2014-02-06/pa-range-rings.png" />
 
-The great thing about how these are drawn are that the range rings are combined, this gives a very visually pleasing result. We are going to try reproduce this.
+The great thing about how these are drawn is that the range rings are combined rather than just rendering every circle individually, this gives a very visually pleasing result. We are going to try reproduce this.
 
-We'll be implementing this using the HTML5 canvas API, but the concept works similarly with OpenGL and other concepts (details at the end of the post).
+We'll be implementing this using the HTML5 canvas API, but the concept works similarly with OpenGL and other platforms (details at the end of the post).
 
-Doing this is easy. First we draw all of the range circles as filled in circles, with the radius of the range radius plus half of the outline thickness. This gives us the total area that we want the range rings to cover, however the centers are filled in.
+Doing this is easy. First we draw all of the range circles as filled in circles, with the radius of the range radius plus half of the outline thickness. This gives us the total area that we want the range rings to cover, but with the centers filled in.
 
 Next we simply clear the area of the range rings, minus half of the outline thickness. This leaves us with just the outlines that we desire!
 
@@ -71,7 +71,7 @@ This technique can be implemented in OpenGL using the stencil buffer.
 - Draw all of the circles, padded by half the outline thickness (this gives us a stencil full of 1s where the range rings are)
 - Change the stencil write to replace the existing with 0
 - Draw all of the circles, inset by half the outline thickness (this leaves us with just 1s in the outline locations)
-- Enable color rendering and set to only render where the stencil is one
+- Enable color rendering and set to only render where the stencil is 1
 - Draw all of the circles, padded by half the outline thickness
 
 There is a [very good post on stackoverflow with example code] doing this
