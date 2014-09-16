@@ -19,11 +19,8 @@ Agent = function (pos) {
 
 	this.maxForce = 5; //rate of acceleration
 	this.maxSpeed = 4; //grid squares / second
-
-	this.radius = 0.4;
-	this.minSeparation = 0.8; // We'll move away from anyone nearer than this
-
-	this.maxCohesion = 5.5; //We'll move closer to anyone within this bound
+	
+	this.neighbourRadius = 2;
 };
 
 var destination = new Vector2(gridWidth - 2, gridHeight / 2); //middle right
@@ -69,8 +66,13 @@ function gameTick(dt) {
 		//	console.log(round(seek.length()) + ' ' + round(separation.length()) + ' ' + round(cohesion.length()) + ' ' + round(alignment.length()) + ' : ' + round(agent.velocity.length()));
 		//}
 
-		//Combine them to come up with a total force to apply, decreasing the effect of cohesion
-		agent.forceToApply = seek.plus(separation).plus(cohesion.mul(0.1)).plus(alignment);
+		//Combine them to come up with a total force to apply
+		agent.forceToApply = seek.plus(separation.mul(2)).plus(cohesion.mul(0.2)).plus(alignment.mul(0.5));
+		
+		//Cap the force if required
+		if (agent.forceToApply.length() > agent.maxForce) {
+			agent.forceToApply = agent.forceToApply.normalize().mul(agent.maxForce);
+		}
 	}
 
 	//Move agents based on forces being applied (aka physics)
@@ -121,10 +123,12 @@ function steeringBehaviourSeparation(agent) {
 		var a = agents[i];
 		if (a != agent) {
 			var distance = agent.position.distanceTo(a.position);
-			if (distance < agent.minSeparation && distance > 0) {
+			if (distance < agent.neighbourRadius && distance > 0) {
 				//Vector to other agent
 				var pushForce = agent.position.minus(a.position);
-				totalForce = totalForce.plus(pushForce.div(agent.radius));
+				//Inverse scaled force (bigger the nearer we are)
+				pushForce = pushForce.normalize().mul(1 - (pushForce.length() / agent.neighbourRadius)); 
+				totalForce = totalForce.plus(pushForce);
 				neighboursCount++;
 			}
 		}
@@ -147,7 +151,7 @@ function steeringBehaviourCohesion(agent) {
 		var a = agents[i];
 		if (a != agent) {
 			var distance = agent.position.distanceTo(a.position);
-			if (distance < agent.maxCohesion) {
+			if (distance < agent.neighbourRadius) {
 				//sum up the position of our neighbours
 				centerOfMass = centerOfMass.plus(a.position);
 				neighboursCount++;
@@ -175,7 +179,7 @@ function steeringBehaviourAlignment(agent) {
 		var a = agents[i];
 		var distance = agent.position.distanceTo(a.position);
 		//That are within the max distance and are moving
-		if (distance < agent.maxCohesion && a.velocity.length() > 0) {
+		if (distance < agent.neighbourRadius && a.velocity.length() > 0) {
 			//Sum up our headings
 			averageHeading = averageHeading.plus(a.velocity.normalize());
 			neighboursCount++;
