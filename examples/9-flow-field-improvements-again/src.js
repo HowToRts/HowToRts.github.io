@@ -21,10 +21,10 @@ Agent = function (pos) {
 	this.maxSpeed = 4; //grid squares / second
 
 	this.radius = 0.23;
-	this.minSeparation = this.radius * 4; // We'll move away from anyone nearer than this
 
-	this.maxCohesion = this.radius * 10; //We'll move closer to anyone within this bound
+	this.neighbourRadius = 3;
 
+	
 	this.maxForceSquared = this.maxForce * this.maxForce;
 	this.maxSpeedSquared = this.maxSpeed * this.maxSpeed;
 
@@ -129,7 +129,7 @@ function gameTick(dt) {
 
 		//For visually debugging forces agent.forces = [ff.Copy(), sep.Copy(), alg.Copy(), coh.Copy()];
 
-		agent.forceToApply = ff.Add(sep.Multiply(2.2)).Add(alg.Multiply(0.3)).Add(coh.Multiply(0.05));
+		agent.forceToApply = ff.Add(sep.Multiply(2)).Add(alg.Multiply(0.5)).Add(coh.Multiply(0.2));
 
 		var lengthSquared = agent.forceToApply.LengthSquared();
 		if (lengthSquared > agent.maxForceSquared) {
@@ -215,15 +215,13 @@ function steeringBehaviourSeparation(agent) {
 		var a = agents[i];
 		if (a != agent) {
 			var distance = agent.position().DistanceTo(a.position());
-			if (distance < agent.minSeparation && distance > 0) {
+			if (distance < agent.neighbourRadius && distance > 0) {
 				//Vector to other agent
 				var pushForce = agent.position().Copy().Subtract(a.position());
 				var length = pushForce.Normalize(); //Normalize returns the original length
 				var r = (agent.radius + a.radius);
 
-				totalForce.Add(pushForce.Multiply(1 - ((length - r) / (agent.minSeparation - r))));//agent.minSeparation)));
-				//totalForce.Add(pushForce.Multiply(1 - (length / agent.minSeparation)));
-				//totalForce.Add(pushForce.Divide(agent.radius));
+				totalForce.Add(pushForce.Multiply(1 - (length / agent.neighbourRadius)))
 
 				neighboursCount++;
 			}
@@ -246,7 +244,7 @@ function steeringBehaviourCohesion(agent) {
 		var a = agents[i];
 		if (a != agent) {
 			var distance = agent.position().DistanceTo(a.position());
-			if (distance < agent.maxCohesion) {
+			if (distance < agent.neighbourRadius) {
 				//sum up the position of our neighbours
 				centerOfMass.Add(a.position());
 				neighboursCount++;
@@ -274,7 +272,7 @@ function steeringBehaviourAlignment(agent) {
 		var a = agents[i];
 		var distance = agent.position().DistanceTo(a.position());
 		//That are within the max distance and are moving
-		if (distance < agent.maxCohesion && a.velocity().Length() > 0) {
+		if (distance < agent.neighbourRadius && a.velocity().Length() > 0) {
 			//Sum up our headings
 			var head = a.velocity().Copy();
 			head.Normalize();
