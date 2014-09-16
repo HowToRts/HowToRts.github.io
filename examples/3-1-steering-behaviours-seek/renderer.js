@@ -77,6 +77,9 @@ function loadingComplete() {
 
 
 function rendererTick() {
+	targetShape.x = (destination.x + 0.5) * gridPx;
+	targetShape.y = (destination.y + 0.5) * gridPx;
+
 	//Create new enemy bitmaps as required
 	//Update enemy positions
 	for (var i = 0; i < agents.length; i++) {

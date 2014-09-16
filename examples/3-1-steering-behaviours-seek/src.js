@@ -28,6 +28,11 @@ function startGame() {
 	for (var i = 0; i < 5; i++) {
 		agents.push(new Agent(new Vector2(Math.random() * gridWidth, Math.random() * gridHeight)));
 	}
+
+	stage.addEventListener('stagemouseup', function (ev) {
+		destination.x = ev.stageX / gridPx - 0.5;
+		destination.y = ev.stageY / gridPx - 0.5;
+	});
 }
 
 //called periodically to update the game
