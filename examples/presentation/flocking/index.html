@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<link rel="stylesheet" href="../../style.css">
+		<script src="../../libs/createjs-2013.09.25.min.js"></script>
+		<script src="../../libs/math.js"></script>
+		<script src="src.js"></script>
+		<script src="renderer.js"></script>
+	</head>
+<body onLoad="init();">
+	<canvas id="canvas" width="800" height="448">
+		alternate content
+	</canvas>
+	<br/>
+	<table>
+	<tr>
+		<td style="text-align: right">Max Force: <input type="range" id="force" min="0" max="500" value="100"></td>
+		<td style="text-align: right">Max Speed: <input type="range" id="speed" min="0" max="200" value="50"></td>
+		<td style="text-align: right">Neighbour Range: <input type="range" id="neighbour" min="0" max="50" value="20"></td>
+	</tr>
+	<tr>
+		<td style="text-align: right">Seek: <input type="range" id="seek" min="0" max="100" value="10"></td>
+	</tr>
+	<tr>
+		<td style="text-align: right">Separation: <input type="range" id="separation" min="0" max="100" value="10"></td>
+		<td style="text-align: right">Cohesion: <input type="range" id="cohesion" min="0" max="100" value="10"></td>
+		<td style="text-align: right">Alignment: <input type="range" id="alignment" min="0" max="100" value="10"></td>
+	</tr>
+	</table>
+</body>
+</html>
