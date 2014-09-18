@@ -94,6 +94,8 @@ function startGame() {
 
 		world.CreateBody(bodyDef).CreateFixture(fixDef);
 	}
+	
+	createWalls();
 
 	generateDijkstraGrid();
 	generateFlowField();
@@ -108,14 +110,62 @@ function startGame() {
 	});
 }
 
+function createWalls() {
+	var fixDef = new B2FixtureDef();
+	var bodyDef = new B2BodyDef();
+
+	fixDef.density = 1.0;
+	fixDef.friction = 0.5;
+	fixDef.restitution = 0.2;
+	fixDef.shape = new B2PolygonShape();
+	fixDef.shape.SetAsBox(0.5, gridHeight);
+
+	bodyDef.type = B2Body.b2_staticBody;
+
+	//left
+	bodyDef.position.SetV(new B2Vec2(-1, gridHeight / 2));
+	world.CreateBody(bodyDef).CreateFixture(fixDef);
+
+	//right
+	bodyDef.position.SetV(new B2Vec2(gridWidth, gridHeight / 2));
+	world.CreateBody(bodyDef).CreateFixture(fixDef);
+
+	
+	fixDef.shape.SetAsBox(gridWidth, 0.5);
+
+	//top
+	bodyDef.position.SetV(new B2Vec2(gridWidth / 2, -1));
+	world.CreateBody(bodyDef).CreateFixture(fixDef);
+
+	//bottom
+	bodyDef.position.SetV(new B2Vec2(gridWidth / 2, gridHeight));
+	world.CreateBody(bodyDef).CreateFixture(fixDef);
+
+}
+
 function round(val) {
 	return val.toFixed(1);
 }
+
+var regenTime = 5;
 
 //called periodically to update the game
 //dt is the change of time since the last update (in seconds)
 function gameTick(dt) {
 	var i, agent;
+	
+	regenTime-=dt;
+	if (regenTime <= 0) {
+		regenTime += 8;
+		
+		
+		destination.x = Math.random() * (gridWidth - 2) + 1;
+		destination.y = Math.random() * (gridHeight - 2) + 1;
+		generateDijkstraGrid();
+		generateFlowField();
+	
+		updateWeightsAndFieldVisuals(); //Call in to the renderer to redraw the weights and flow field
+	}
 
 	//Calculate steering and flocking forces for all agents
 	for (i = agents.length - 1; i >= 0; i--) {

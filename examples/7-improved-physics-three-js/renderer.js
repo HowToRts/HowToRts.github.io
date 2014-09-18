@@ -85,7 +85,7 @@ function loadingComplete() {
 	light.target.position.set(WIDTH / 2, HEIGHT / 2, 0);
 
 	light.castShadow = true;
-	light.shadowCameraVisible = true;
+	//light.shadowCameraVisible = true;
 
 	light.shadowCameraNear = 180;
 	light.shadowCameraFar = 2500;
@@ -140,7 +140,7 @@ function loadingComplete() {
 	}
 	var grid = new THREE.Line(gridGeometry, lineMaterial);
 	grid.position.z = 1;
-	scene.add(grid);
+	//scene.add(grid);
 
 
 	for (var i = 0; i < obstacles.length; i++) {
