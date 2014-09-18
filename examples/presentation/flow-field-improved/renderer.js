@@ -60,6 +60,7 @@ function loadingComplete() {
 	updateWeightsAndFieldVisuals();
 
 	createjs.Ticker.setFPS(60);
+	createjs.Ticker.timingMode = "raf";
 	createjs.Ticker.addEventListener("tick", function () {
 		gameTick(createjs.Ticker.getInterval() / 1000);
 		rendererTick();
