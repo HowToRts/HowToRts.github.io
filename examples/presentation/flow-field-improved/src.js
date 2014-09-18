@@ -156,6 +156,7 @@ function gameTick(dt) {
 		agent = agents[i];
 		
 		if (agent.position().x > gridWidth) {
+			world.DestroyBody(agent.body);
 			stage.removeChild(agentBitmaps[agent._id])
 			stage.removeChild( agentForceLines[agent._id]);
 			agents.splice(i, 1);
