@@ -146,7 +146,7 @@ function gameTick(dt) {
 		spawnTime += 0.5;
 		agents.push(new Agent(new B2Vec2(0, 0)));
 		agents.push(new Agent(new B2Vec2(0, (gridHeight - 1) / 4)));
-		agents.push(new Agent(new B2Vec2(0, (gridHeight - 1) / 2)));
+		agents.push(new Agent(new B2Vec2(0, (gridHeight - 0) / 2)));
 		agents.push(new Agent(new B2Vec2(0, (gridHeight - 1) * 3 / 4)));
 		agents.push(new Agent(new B2Vec2(0, (gridHeight - 1))));
 	}
