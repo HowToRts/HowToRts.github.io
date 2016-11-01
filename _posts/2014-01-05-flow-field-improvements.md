@@ -30,7 +30,7 @@ Solving this is probably easiest done by increasing the resolution of our grid, 
 <img class="inline" src="/images/2014-01-05/near-destination.png" />
 Here the 3 at the bottom right should clearly be pointing straight at the destination as it has a clear path to it.
 
-We should integrate the Line of Site tests as recommended in Elijahs article in [Game AI Pro] to solve this one.
+We should integrate the Line of Sight tests as recommended in Elijah's article in [Game AI Pro] to solve this one.
 
 [Game AI Pro]: http://www.gameaipro.com/
 
@@ -86,7 +86,7 @@ With this change the movement of our agents in tighter spaces seems much better 
 The resolution of the Flow Field grid is something that I haven't seen discussed yet, so here is a brain dump of my thoughts on it.
 
 - Your grid should be at least twice the resolution of your smallest obstacle, to help avoid issues like shown above.
-- If your smallest unit is larger than a grid cell, there will be paths that should be traverable that will not be.
+- If your smallest unit is larger than a grid cell, there will be paths that should be traversable that will not be.
 - A lower resolution grid is quicker to generate and uses less memory.
 - A higher resolution grid will provide better pathing results, especially in congested areas.
 
@@ -167,7 +167,7 @@ function steeringBehaviourLowestCost(agent) {
 {% endhighlight %}
 
 
-#### Line of Site (Near destination)
+#### Line of Sight (Near destination)
 
 I'm going to save this for its own article as we need to do a fair bit of work to get ready for it. Coming soon!
 
